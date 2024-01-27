@@ -1,1 +1,3 @@
 commit 2
+
+After create PyFriend.git
