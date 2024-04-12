@@ -4,4 +4,5 @@ venv/
 **/test/
 **/temp/
  *копия*
-
+*_templ_*
+*orig_*
