@@ -28,12 +28,14 @@ RECORD_SECONDS = 2
 
 model = vosk.Model("model")
 
+word_friend = 'друг'
+
 def main():
 
     # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит системные ресурсы для PortAudio
     py_audio = pyaudio.PyAudio()
 
-    for i in range(2):
+    for i in range(5):
 
         # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
         stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
@@ -48,14 +50,20 @@ def main():
             # print(ii)
             # print(rec.PartialResult())
 
-        print(rec.PartialResult())
-
+        # print(rec.PartialResult())
         # # PartialResult распознает лучше всех
         # print(rec.PartialResult())
         # print(rec.Result())
         # print(rec.FinalResult())
 
         stream.close()
+        result_text = rec.PartialResult()
+        # print(rec.PartialResult())
+        print(result_text)
+
+        if word_friend in result_text:
+            print('Hello Marina!!!')
+            break
 
     py_audio.terminate()
 
