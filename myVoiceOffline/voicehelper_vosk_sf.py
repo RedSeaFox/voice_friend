@@ -1,23 +1,24 @@
 import sys
 
-import pyaudio
-import vosk
-
-# нужен микрофон
-# Можно использовать pyaudio, можно использовать SpeechRecognition, который все равно использует pyaudio
-
+# Нужен микрофон. Для этого можно использовать pyaudio.
+# Можно использовать SpeechRecognition, который все равно использует pyaudio.
+# PyAudio предоставляет Python связь с PortAudio v19 (кроссплатформенной библиотекой ввода-вывода аудио)
 # https://people.csail.mit.edu/hubert/pyaudio/docs/
 # https://people.csail.mit.edu/hubert/pyaudio/
+import pyaudio
+# Для распознавания речи используем vosk - автономный API распознавания речи
+import vosk
 
-# CHANNELS = 1 if sys.platform == 'darwin' else 2 # darwin это macOS https://docs.python.org/3/library/sys.html#module-sys
-#                     # Такие параметры указаны на people.csail Но для win c CHANNELS=2 не работает, работает с 1
 CHANNELS = 1  # моно
+# CHANNELS = 1 if sys.platform == 'darwin' else 2
+# darwin это macOS https://docs.python.org/3/library/sys.html#module-sys
+# Такие параметры указаны на people.csail Но для win c CHANNELS=2 не работает, работает с 1
 
-# RATE = 44100  # частота дискретизации - кол-во фреймов в секунду
-# CHUNK = 1024  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
-# CHUNK = 16000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
+# RATE = 44100  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
+# CHUNK = 1024  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
+
 # RATE = 44100, CHUNK = 1024 такие параметры в people.csail, но с ними не распознает
 # RATE = 16000, CHUNK = 8000 распознает лучше, чем RATE = 16000, CHUNK = 16000
 
@@ -32,7 +33,6 @@ rec = vosk.KaldiRecognizer(model, 16000)
 py_audio = pyaudio.PyAudio()
 
 # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
-# stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True)
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
 print('Recording...')
