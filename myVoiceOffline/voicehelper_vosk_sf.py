@@ -33,10 +33,12 @@ RECORD_SECONDS = 2
 model = vosk.Model("model")
 
 word_friend = 'друг'
+worf_hello = 'Здравствуй'
+word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
-def voice_hello_user(text):
+def voice_to_text(text):
     engine.say(text)
     engine.runAndWait()
 
@@ -72,14 +74,11 @@ def main():
         print(result_text)
 
         if word_friend in result_text:
-            print('Hello Marina!!!')
-            voice_hello_user('Hello Marina!!!')
+            print('worf_hello + word_user_name')
+            voice_to_text(worf_hello + word_user_name)
             break
 
     py_audio.terminate()
-
-
-
 
 if __name__ == '__main__':
     main()
