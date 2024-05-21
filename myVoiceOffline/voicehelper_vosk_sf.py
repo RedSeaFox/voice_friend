@@ -6,8 +6,12 @@ import sys
 # https://people.csail.mit.edu/hubert/pyaudio/docs/
 # https://people.csail.mit.edu/hubert/pyaudio/
 import pyaudio
+
 # Для распознавания речи используем vosk - автономный API распознавания речи
 import vosk
+
+# Для преобразования текста в речь (для ответов друга) используем pyttsx3
+import pyttsx3
 
 CHANNELS = 1  # моно
 # CHANNELS = 1 if sys.platform == 'darwin' else 2
@@ -29,6 +33,12 @@ RECORD_SECONDS = 2
 model = vosk.Model("model")
 
 word_friend = 'друг'
+
+engine = pyttsx3.init()
+
+def voice_hello_user(text):
+    engine.say(text)
+    engine.runAndWait()
 
 def main():
 
@@ -63,9 +73,14 @@ def main():
 
         if word_friend in result_text:
             print('Hello Marina!!!')
+            voice_hello_user('Hello Marina!!!')
             break
 
     py_audio.terminate()
 
+
+
+
 if __name__ == '__main__':
     main()
+
