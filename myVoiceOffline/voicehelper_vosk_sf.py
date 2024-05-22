@@ -47,8 +47,9 @@ def main():
     # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит системные ресурсы для PortAudio
     py_audio = pyaudio.PyAudio()
 
-    for i in range(5):
-
+    # for i in range(5):
+    listen = True
+    while listen:
         # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
         stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
@@ -74,9 +75,10 @@ def main():
         print(result_text)
 
         if word_friend in result_text:
-            print('worf_hello + word_user_name')
+            print(worf_hello + word_user_name)
             voice_to_text(worf_hello + word_user_name)
-            break
+            # break
+
 
     py_audio.terminate()
 
