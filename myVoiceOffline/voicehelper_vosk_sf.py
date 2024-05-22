@@ -8,7 +8,7 @@ import sys
 import pyaudio
 
 # Для распознавания речи используем vosk - автономный API распознавания речи
-import vosk
+from vosk import Model, KaldiRecognizer
 
 # Для преобразования текста в речь (для ответов друга) используем pyttsx3
 import pyttsx3
@@ -30,10 +30,10 @@ FORMAT = pyaudio.paInt16 # глубина звука = 16 бит = 2 байта
 
 RECORD_SECONDS = 2
 
-model = vosk.Model("model")
+model = Model("model")
 
 word_friend = 'друг'
-worf_hello = 'Здравствуй'
+word_hello = 'Здравствуй'
 word_user_name = 'Люся'
 
 engine = pyttsx3.init()
@@ -53,31 +53,22 @@ def main():
         # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
         stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
-        rec = vosk.KaldiRecognizer(model, 16000)
+        rec = KaldiRecognizer(model, 16000)
 
-        print('Recording...')
+        # print('Recording...')
 
         for ii in range(0, RATE // CHUNK * RECORD_SECONDS):
             data = stream.read(CHUNK)
             rec.AcceptWaveform(data)
-            # print(ii)
-            # print(rec.PartialResult())
-
-        # print(rec.PartialResult())
-        # # PartialResult распознает лучше всех
-        # print(rec.PartialResult())
-        # print(rec.Result())
-        # print(rec.FinalResult())
 
         stream.close()
         result_text = rec.PartialResult()
-        # print(rec.PartialResult())
         print(result_text)
 
+
         if word_friend in result_text:
-            print(worf_hello + word_user_name)
-            voice_to_text(worf_hello + word_user_name)
-            # break
+            print(word_hello + '' + word_user_name)
+            voice_to_text(word_hello + word_user_name)
 
 
     py_audio.terminate()
