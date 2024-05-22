@@ -42,6 +42,7 @@ def main():
     listen = True
     while listen:
         # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
+        # frames_per_buffer – указывает количество кадров в буфере.
         stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
         rec = KaldiRecognizer(model, 16000)
