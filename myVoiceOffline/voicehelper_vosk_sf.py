@@ -14,17 +14,9 @@ from vosk import Model, KaldiRecognizer
 import pyttsx3
 
 CHANNELS = 1  # моно
-# CHANNELS = 1 if sys.platform == 'darwin' else 2
-# darwin это macOS https://docs.python.org/3/library/sys.html#module-sys
-# Такие параметры указаны на people.csail Но для win c CHANNELS=2 не работает, работает с 1
 
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
-# RATE = 44100  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
-# CHUNK = 1024  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
-
-# RATE = 44100, CHUNK = 1024 такие параметры в people.csail, но с ними не распознает
-# RATE = 16000, CHUNK = 8000 распознает лучше, чем RATE = 16000, CHUNK = 16000
 
 FORMAT = pyaudio.paInt16 # глубина звука = 16 бит = 2 байта
 
@@ -47,15 +39,12 @@ def main():
     # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит системные ресурсы для PortAudio
     py_audio = pyaudio.PyAudio()
 
-    # for i in range(5):
     listen = True
     while listen:
         # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
         stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
         rec = KaldiRecognizer(model, 16000)
-
-        # print('Recording...')
 
         for ii in range(0, RATE // CHUNK * RECORD_SECONDS):
             data = stream.read(CHUNK)
@@ -65,11 +54,10 @@ def main():
         result_text = rec.PartialResult()
         print(result_text)
 
-
         if word_friend in result_text:
             print(word_hello + '' + word_user_name)
             voice_to_text(word_hello + word_user_name)
-
+            listen = False
 
     py_audio.terminate()
 
