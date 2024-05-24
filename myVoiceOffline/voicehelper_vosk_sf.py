@@ -14,53 +14,64 @@ from vosk import Model, KaldiRecognizer
 import pyttsx3
 
 CHANNELS = 1  # моно
-
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
-
 FORMAT = pyaudio.paInt16 # глубина звука = 16 бит = 2 байта
-
-RECORD_SECONDS = 2
-
 model = Model("model")
+RECORD_SECONDS = 3
 
 word_friend = 'друг'
-word_hello = ', я слушаю тебя. Жду твою команду 20 секунд'
+word_hello = ', я слушаю тебя.'
 word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
-def voice_to_text(text):
+# Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит системные ресурсы для PortAudio
+py_audio = pyaudio.PyAudio()
+stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+
+def say_text(text):
     engine.say(text)
     engine.runAndWait()
 
+
+def working_with_commands():
+    rec = KaldiRecognizer(model, 16000)
+
+    print(word_user_name + word_hello)
+    say_text(word_user_name + word_hello)
+
+    for _ in range(0, RATE // CHUNK * RECORD_SECONDS):
+        data = stream.read(CHUNK)
+        rec.AcceptWaveform(data)
+
+    result_text = rec.PartialResult()
+    print(result_text)
+
+    if 'играй' in result_text:
+        print(word_user_name + ', включаю плеер')
+        say_text(word_user_name + ', включаю плеер')
+
 def main():
+    try:
+        # say_text('Программа запущена')
 
-    # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит системные ресурсы для PortAudio
-    py_audio = pyaudio.PyAudio()
+        listen = True
+        while listen:
+            rec = KaldiRecognizer(model, 16000)
 
-    listen = True
-    while listen:
-        # Для записи или воспроизведения звука откроем поток на нужном устройстве с нужными параметрами звука
-        # frames_per_buffer – указывает количество кадров в буфере.
-        stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+            for _ in range(0, RATE // CHUNK * RECORD_SECONDS):
+                data = stream.read(CHUNK)
+                rec.AcceptWaveform(data)
 
-        rec = KaldiRecognizer(model, 16000)
+            result_text = rec.PartialResult()
+            print(result_text)
 
-        for ii in range(0, RATE // CHUNK * RECORD_SECONDS):
-            data = stream.read(CHUNK)
-            rec.AcceptWaveform(data)
-
-        stream.close()
-        result_text = rec.PartialResult()
-        # print(result_text)
-
-        if word_friend in result_text:
-            print(word_user_name + word_hello)
-            voice_to_text(word_user_name + word_hello)
-            listen = False
-
-    py_audio.terminate()
+            if word_friend in result_text:
+                working_with_commands()
+    finally:
+        print('Closing programm Ok')
+        py_audio.terminate()
 
 if __name__ == '__main__':
     main()
