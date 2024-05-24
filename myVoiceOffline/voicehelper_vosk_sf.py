@@ -25,7 +25,7 @@ RECORD_SECONDS = 2
 model = Model("model")
 
 word_friend = 'друг'
-word_hello = 'Здравствуй'
+word_hello = ', я слушаю тебя. Жду твою команду 20 секунд'
 word_user_name = 'Люся'
 
 engine = pyttsx3.init()
@@ -53,11 +53,11 @@ def main():
 
         stream.close()
         result_text = rec.PartialResult()
-        print(result_text)
+        # print(result_text)
 
         if word_friend in result_text:
-            print(word_hello + '' + word_user_name)
-            voice_to_text(word_hello + word_user_name)
+            print(word_user_name + word_hello)
+            voice_to_text(word_user_name + word_hello)
             listen = False
 
     py_audio.terminate()
