@@ -41,7 +41,9 @@ def working_with_commands():
     print(word_user_name + word_hello)
     say_text(word_user_name + word_hello)
 
-    for _ in range(0, RATE // CHUNK * RECORD_SECONDS):
+    record_seconds = 8
+
+    for _ in range(0, RATE // CHUNK * record_seconds):
         data = stream.read(CHUNK)
         rec.AcceptWaveform(data)
 
@@ -54,7 +56,7 @@ def working_with_commands():
 
 def main():
     try:
-        # say_text('Программа запущена')
+        say_text('Программа запущена')
 
         listen = True
         while listen:
