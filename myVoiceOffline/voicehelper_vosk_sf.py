@@ -34,7 +34,7 @@ rec = KaldiRecognizer(model, 16000)
 def say_text(text):
     engine.say(text)
     engine.runAndWait()
-    print('*** say_text ***:', text)
+    # print('*** say_text ***:', text)
 
 
 def working_with_commands():
@@ -42,9 +42,11 @@ def working_with_commands():
 
     # Останавливаем поток, чтобы не попал шум (например приветствие друга) в речь пользователя
     stream.stop_stream()
+    # и перезапускаем распознавание, чтобы убрать остатки былых слов
+    rec.Reset()
     # Сначала сообщаем пользователю, что друг услышал, что пользователь позвал друга.
     say_text(word_user_name + word_hello)
-    # print('*** working_with_commands ***', word_user_name + word_hello)
+    print('*** working_with_commands - say_text:', word_user_name + word_hello)
 
     # Время одной порции слов делаем уже побольше (3 сек), чем когда просто ждали когда позовут друга (2сек)
     record_seconds = 3
@@ -82,7 +84,8 @@ def working_with_commands():
             count_replay = 0
             result_text = rec.PartialResult()
 
-        print('*** working_with_commands ***', count_replay, len(rec.PartialResult()),len(result_text), result_text)
+    print('*** working_with_commands - result_text:', count_replay, len(rec.PartialResult()),len(result_text),
+          result_text.replace("\n", ""))
 
     # Все услышали, поэтому останавливаем поток и перезапускаем распознание
     stream.stop_stream()
@@ -90,22 +93,26 @@ def working_with_commands():
 
     # Переходим к обработке услышанного
     if 'играй' in result_text:
-        print('*** working_with_commands ***', word_user_name + ', включаю плеер')
+        print('*** working_with_commands - обработка указаний пользователя: Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
     elif 'найди' in result_text:
-        print('*** working_with_commands ***', 'Ищу')
+        print('*** working_with_commands - обработка указаний пользователя:  Ищу')
         say_text('Ищу')
     elif 'добавь' in result_text:
-        print('*** working_with_commands ***', 'Добавляю')
+        print('*** working_with_commands - обработка указаний пользователя:  Добавляю')
         say_text('Добавляю')
     elif 'удали' in result_text:
-        print('*** working_with_commands ***', 'Удаляю')
+        print('*** working_with_commands - обработка указаний пользователя:  Удаляю')
         say_text('Удаляю')
     elif 'Прощай' in result_text:
-        print('*** working_with_commands ***', 'До встречи')
+        print('*** working_with_commands - обработка указаний пользователя:  Прощай')
         say_text('До встречи')
+    else:
+        print('*** working_with_commands - обработка указаний пользователя:  Команда не распознана')
+        say_text('Команда не распознана')
 
     stream.start_stream()
+    rec.Reset()
 
 def main():
     # Ждем обращение пользователя к другу, т.е. ждем, когда пользователь скажет слово друг,
@@ -131,7 +138,7 @@ def main():
 
             result_text = rec.PartialResult()
 
-            print('*** main ***', result_text.replace("\n", ""))
+            print('*** main - result_text:', result_text.replace("\n", ""))
 
             # Если услышали, что пользователь обращается к другу, то вызываем обработчик, который
             # будет выполнять дальнейшие действия (спрашивать пользователя, запускать другие обработчики)
