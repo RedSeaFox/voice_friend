@@ -41,6 +41,7 @@ def working_with_commands():
 
     # Сначала сообщаем пользователю, что друг услышал, что пользователь позвал друга.
     say_text(word_user_name + word_hello)
+    stream.stop_stream()
     print(word_user_name + word_hello)
 
     # Время одной порции слов делаем уже побольше (3 сек), чем когда просто ждали когда позовут друга (2сек)
@@ -58,9 +59,9 @@ def working_with_commands():
     # Также перестаем слушать, когда текст указания слишком длинный (может быть пользователь просто поет)
     max_len_rec = 300
 
-    rec.Reset()
     # Слушаем что говорит пользователь. Это может быть длинное предложение,
     # поэтому слушаем, пока пользователь не сделает длинную паузу или предложение не будет слишком длинным
+    stream.start_stream()
     while listen:
         # Обрабатываем порцию за record_seconds секунд
         for _ in range(0, RATE // CHUNK * record_seconds):
@@ -79,7 +80,7 @@ def working_with_commands():
             count_replay = 0
             result_text = rec.PartialResult()
 
-        print(count_replay, result_text)
+        print(count_replay, len(rec.PartialResult()),len(result_text), result_text)
 
     # Обрабатываем команду
     if 'играй' in result_text:
@@ -110,13 +111,15 @@ def main():
             # будет выполнять дальнейшие действия (спрашивать пользователя, запускать другие обработчики)
             if word_friend in result_text:
                 rec.Reset()
+                stream.stop_stream()
                 working_with_commands()
-                rec.Reset()
+                stream.start_stream()
+                # rec.Reset()
 
             # В противном случае считаем, что пользователь не обращался к другу.
             # Чтобы не копить распознанный текст, очищаем rec
-            else:
-                rec.Reset()
+            # else:
+                # rec.Reset()
 
     finally:
         print('Closing programm Ok')
