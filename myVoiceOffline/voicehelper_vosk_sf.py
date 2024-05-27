@@ -18,7 +18,7 @@ RATE = 16000  # частота дискретизации - кол-во фрей
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
 FORMAT = pyaudio.paInt16 # глубина звука = 16 бит = 2 байта
 model = Model("model")
-RECORD_SECONDS = 2
+# RECORD_SECONDS = 2
 
 word_friend = 'друг'
 word_hello = ', я слушаю тебя.'
@@ -37,32 +37,49 @@ def say_text(text):
 
 
 def working_with_commands():
+    """ Обработка указаний пользователя"""
+
+    # Сначала сообщаем пользователю, что друг услышал, что пользователь позвал друга.
     say_text(word_user_name + word_hello)
     print(word_user_name + word_hello)
 
+    # Время одной порции слов делаем уже побольше (3 сек), чем когда просто ждали когда позовут друга (2сек)
     record_seconds = 3
 
     listen = True
 
-    result_text = ''
+    # Неизвестно сколько времени понадобится пользователю, чтобы дать указание другу, поэтому будем слушать
+    # до тех пор, пока текст указания result_text не меняется max_replay раз.
+    # Для этого считаем количество повторений count_replay распознанного текста
+    max_replay = 0
     count_replay = 0
+    result_text = ''
+
+    # Также перестаем слушать, когда текст указания слишком длинный (может быть пользователь просто поет)
+    max_len_rec = 300
 
     rec.Reset()
     # Слушаем что говорит пользователь. Это может быть длинное предложение,
     # поэтому слушаем, пока пользователь не сделает длинную паузу или предложение не будет слишком длинным
     while listen:
-
+        # Обрабатываем порцию за record_seconds секунд
         for _ in range(0, RATE // CHUNK * record_seconds):
             data = stream.read(CHUNK)
             rec.AcceptWaveform(data)
 
+        # Проверяем, изменился текст или нет и если не изменился, то сколько раз он уже не менялся
         if result_text == rec.PartialResult():
             count_replay += 1
-            if count_replay > 2:
+            # Если текст не меняется уже max_replay раз
+            if count_replay > max_replay - 1:
                 listen = False
+        elif len(rec.PartialResult()) > max_len_rec:
+            listen = False
         else:
+            count_replay = 0
             result_text = rec.PartialResult()
-            print(result_text)
+
+        print(count_replay, result_text)
 
     # Обрабатываем команду
     if 'играй' in result_text:
@@ -70,26 +87,36 @@ def working_with_commands():
         say_text(word_user_name + ', включаю плеер')
 
 def main():
-    try:
-        say_text('Программа запущена')
+    # Ждем обращение пользователя к другу, т.е. ждем, когда пользователь скажет слово друг,
+    # для этого достаточно 2 секунд.
+    # 1 секунды мало, так как в этом случае возможно частое попадание слова друг на границу секунды
+    # 3 секунды много, так как получаются значительные паузы в реакции друга
+    record_seconds = 2
 
+    say_text('Программа запущена')
+
+    # Слушаем постоянно
+    try:
         listen = True
         while listen:
-            # rec = KaldiRecognizer(model, 16000)
-            # rec.Reset()
-
-            for _ in range(0, RATE // CHUNK * RECORD_SECONDS):
+            # Обрабатываем порцию за record_seconds секунд
+            for _ in range(0, RATE // CHUNK * record_seconds):
                 data = stream.read(CHUNK)
                 rec.AcceptWaveform(data)
 
             result_text = rec.PartialResult()
-            print(result_text)
-
+            # print(result_text)
+            # Если услышали, что пользователь обращается к другу, то вызываем обработчик, который
+            # будет выполнять дальнейшие действия (спрашивать пользователя, запускать другие обработчики)
             if word_friend in result_text:
                 rec.Reset()
                 working_with_commands()
+                rec.Reset()
 
-            rec.Reset()
+            # В противном случае считаем, что пользователь не обращался к другу.
+            # Чтобы не копить распознанный текст, очищаем rec
+            else:
+                rec.Reset()
 
     finally:
         print('Closing programm Ok')
