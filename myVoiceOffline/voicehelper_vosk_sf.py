@@ -13,6 +13,10 @@ from vosk import Model, KaldiRecognizer
 # Для преобразования текста в речь (для ответов друга) используем pyttsx3
 import pyttsx3
 
+# для теста playsound3
+from playsound3 import playsound
+
+
 CHANNELS = 1  # моно
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
@@ -30,6 +34,11 @@ engine = pyttsx3.init()
 py_audio = pyaudio.PyAudio()
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 rec = KaldiRecognizer(model, 16000)
+
+def ps3():
+    playsound("vod.mp3", block=False)
+
+
 
 def say_text(text):
     engine.say(text)
@@ -95,6 +104,7 @@ def working_with_commands():
     if 'играй' in result_text:
         print('*** working_with_commands - обработка указаний пользователя: Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
+        ps3()
     elif 'найди' in result_text:
         print('*** working_with_commands - обработка указаний пользователя:  Ищу')
         say_text('Ищу')
