@@ -75,6 +75,15 @@ def play_just_playback():
             # ***********************
        # pass
 
+def play_just_playback_v2():
+    playback = Playback()
+    # playback.load_file('test1.mp3')
+    playback.load_file('14-shall.mp3')
+    # playback.load_file('test_instr.mp3')
+    playback.play()
+    time.sleep(0.1)
+
+
 import vlc
 import time
 def play_vlc():
@@ -83,10 +92,10 @@ def play_vlc():
     # p = vlc.MediaPlayer('test1.mp3')
     p.play()
 
-    print('is_playing:', p.is_playing())
+    # print('is_playing:', p.is_playing())
     time.sleep(0.1)
     # a = input()
-    print('is_playing:', p.is_playing())
+    # print('is_playing:', p.is_playing())
 
     # while p.is_playing():
     #     pass
@@ -152,6 +161,7 @@ def working_with_commands():
         # ps3()
         # play_just_playback()
         play_vlc()
+        # play_just_playback_v2()
     elif 'найди' in result_text:
         print('*** working_with_commands - обработка указаний пользователя:  Ищу')
         say_text('Ищу')
