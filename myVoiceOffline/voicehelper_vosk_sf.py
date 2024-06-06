@@ -6,15 +6,13 @@ import sys
 # https://people.csail.mit.edu/hubert/pyaudio/docs/
 # https://people.csail.mit.edu/hubert/pyaudio/
 import pyaudio
-
 # Для распознавания речи используем vosk - автономный API распознавания речи
 from vosk import Model, KaldiRecognizer
-
 # Для преобразования текста в речь (для ответов друга) используем pyttsx3
 import pyttsx3
-
-# для теста playsound3
-from playsound3 import playsound
+# Для воспроизведения аудио файлов будем использовать vlc
+import vlc
+import time
 
 
 CHANNELS = 1  # моно
@@ -35,57 +33,12 @@ py_audio = pyaudio.PyAudio()
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 rec = KaldiRecognizer(model, 16000)
 
-def ps3():
-    playsound("vod.mp3", block=False)
-
 def say_text(text):
     engine.say(text)
     engine.runAndWait()
     # print('*** say_text ***:', text)
 
-from just_playback import Playback
-def play_just_playback():
-    playback = Playback()
-    # playback.load_file('test1.mp3')
-    playback.load_file('14-shall.mp3')
-    # playback.load_file('test_instr.mp3')
-    playback.play()
-    while playback.playing:
-        # *********************************
-        stream.start_stream()
 
-        for _ in range(0, RATE // CHUNK * 2):
-            data = stream.read(CHUNK)
-            rec.AcceptWaveform(data)
-
-        result_text = rec.PartialResult()
-        print('*** play_just_playback - result_text:', result_text.replace("\n", ""))
-
-        # Если услышали, что пользователь обращается к другу, то вызываем обработчик, который
-        # будет выполнять дальнейшие действия (спрашивать пользователя, запускать другие обработчики)
-        if word_friend in result_text:
-            rec.Reset()
-            print('позвали друга')
-            break
-        # В противном случае считаем, что пользователь не обращался к другу.
-        # Чтобы не копить распознанный текст, очищаем rec
-        else:
-            print('Что-то сказали')
-            rec.Reset()
-            # ***********************
-       # pass
-
-def play_just_playback_v2():
-    playback = Playback()
-    # playback.load_file('test1.mp3')
-    playback.load_file('14-shall.mp3')
-    # playback.load_file('test_instr.mp3')
-    playback.play()
-    time.sleep(0.1)
-
-
-import vlc
-import time
 def play_vlc():
     # p = vlc.MediaPlayer('Robertino Loretti - Jamaica.mp4')
     p = vlc.MediaPlayer('14-shall.mp3')
@@ -158,10 +111,7 @@ def working_with_commands():
     if 'играй' in result_text:
         print('*** working_with_commands - обработка указаний пользователя: Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
-        # ps3()
-        # play_just_playback()
         play_vlc()
-        # play_just_playback_v2()
     elif 'найди' in result_text:
         print('*** working_with_commands - обработка указаний пользователя:  Ищу')
         say_text('Ищу')
