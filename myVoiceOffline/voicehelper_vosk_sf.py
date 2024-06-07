@@ -35,8 +35,11 @@ rec = KaldiRecognizer(model, 16000)
 
 
 # ****************************************
-# player = vlc.Instance()
 player = vlc.MediaPlayer()
+
+paused = vlc.State().Paused
+print('paused: ', paused)
+
 # ****************************************
 
 
@@ -62,19 +65,25 @@ def play_vlc():
 
 
     # *******************************************
-    # creating a new media
-    # media = vlc.Media("test1.mp3")
-    media = vlc.Media("14-shall.mp3")
-    # media = player.media_new("test1.mp3")
 
-    player.set_media(media)
 
-    # start playing video
-    player.play()
+    if player.get_state() == vlc.State(4):
+        player.pause()
+    else:
+        # creating a new media
+        # media = vlc.Media("test1.mp3")
+        # media = vlc.Media("14-shall.mp3")
+        media = vlc.Media("vod.mp3")
+        # media = player.media_new("test1.mp3")
 
-    # wait so the video can be played for 5 seconds
-    # irrespective for length of video
-    time.sleep(0.1)
+        player.set_media(media)
+
+        # start playing video
+        player.play()
+
+        # wait so the video can be played for 5 seconds
+        # irrespective for length of video
+        time.sleep(0.1)
 
     # *******************************************
 
@@ -88,13 +97,15 @@ def working_with_commands():
 
     # *********************************************
     # Проверяем запущен ли плеер и если запущен, то ставим его на паузу
-    state_player = player.get_state()
-    print('working_with_commands:  ', state_player)
-
+    print('player.get_state():  ', player.get_state())
+    print('player.retain():  ', player.retain())
     print('is_playing:', player.is_playing())
 
     if player.is_playing():
         player.pause()
+    # elif player.get_state() = vlc.State(4):
+    # elif player.get_state() == vlc.State(4):
+    #     player.pause()
 
 
     # **********************************************
@@ -105,8 +116,8 @@ def working_with_commands():
     print('*** working_with_commands - say_text:', word_user_name + word_hello)
 
     # Время одной порции слов делаем уже побольше (3 сек), чем когда просто ждали когда позовут друга (2сек)
-    record_seconds = 3
-    # record_seconds = 2
+    # record_seconds = 3
+    record_seconds = 2
 
     listen = True
 
@@ -114,7 +125,8 @@ def working_with_commands():
     # до тех пор, пока текст указания result_text не меняется max_replay раз.
     # Для этого считаем количество повторений count_replay распознанного текста
     # max_replay = 0
-    max_replay = 2
+    # max_replay = 2
+    max_replay = 1
     count_replay = 0
     result_text = ''
 
@@ -130,7 +142,7 @@ def working_with_commands():
             data = stream.read(CHUNK)
             rec.AcceptWaveform(data)
 
-        # print('in while listen count_replay = ', count_replay, '  rec.PartialResult() = ', rec.PartialResult())
+        print('in while listen count_replay = ', count_replay, '  rec.PartialResult() = ', rec.PartialResult())
 
         # Проверяем, изменился текст или нет и если не изменился, то сколько раз он уже не менялся
         if result_text == rec.PartialResult():
