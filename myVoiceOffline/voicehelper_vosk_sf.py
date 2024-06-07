@@ -33,25 +33,50 @@ py_audio = pyaudio.PyAudio()
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 rec = KaldiRecognizer(model, 16000)
 
+
+# ****************************************
+# player = vlc.Instance()
+player = vlc.MediaPlayer()
+# ****************************************
+
+
 def say_text(text):
     engine.say(text)
     engine.runAndWait()
-    # print('*** say_text ***:', text)
 
 
 def play_vlc():
-    # p = vlc.MediaPlayer('Robertino Loretti - Jamaica.mp4')
-    p = vlc.MediaPlayer('14-shall.mp3')
-    # p = vlc.MediaPlayer('test1.mp3')
-    p.play()
+    # p = vlc.MediaPlayer('14-shall.mp3')
+    #
+    # p.play()
+    # time.sleep(0.1)
+    #
+    # # print('p.retain():  ', p.retain())
+    # print('p.is_playing():', p.is_playing())
+    # print('vlc.MediaPlayer().is_playing():', vlc.MediaPlayer().is_playing())
+    # print('p.can_pause():', p.can_pause())
+    # print('vlc.MediaPlayer().can_pause():', vlc.MediaPlayer().can_pause())
+    #
+    # print('p.get_instance: ', p.get_instance)
+    # print('p.get_media:     ', p.get_media)
 
-    # print('is_playing:', p.is_playing())
+
+    # *******************************************
+    # creating a new media
+    # media = vlc.Media("test1.mp3")
+    media = vlc.Media("14-shall.mp3")
+    # media = player.media_new("test1.mp3")
+
+    player.set_media(media)
+
+    # start playing video
+    player.play()
+
+    # wait so the video can be played for 5 seconds
+    # irrespective for length of video
     time.sleep(0.1)
-    # a = input()
-    # print('is_playing:', p.is_playing())
 
-    # while p.is_playing():
-    #     pass
+    # *******************************************
 
 def working_with_commands():
     """ Обработка указаний пользователя"""
@@ -60,19 +85,36 @@ def working_with_commands():
     stream.stop_stream()
     # и перезапускаем распознавание, чтобы убрать остатки былых слов
     rec.Reset()
+
+    # *********************************************
+    # Проверяем запущен ли плеер и если запущен, то ставим его на паузу
+    state_player = player.get_state()
+    print('working_with_commands:  ', state_player)
+
+    print('is_playing:', player.is_playing())
+
+    if player.is_playing():
+        player.pause()
+
+
+    # **********************************************
+
+
     # Сначала сообщаем пользователю, что друг услышал, что пользователь позвал друга.
     say_text(word_user_name + word_hello)
     print('*** working_with_commands - say_text:', word_user_name + word_hello)
 
     # Время одной порции слов делаем уже побольше (3 сек), чем когда просто ждали когда позовут друга (2сек)
     record_seconds = 3
+    # record_seconds = 2
 
     listen = True
 
     # Неизвестно сколько времени понадобится пользователю, чтобы дать указание другу, поэтому будем слушать
     # до тех пор, пока текст указания result_text не меняется max_replay раз.
     # Для этого считаем количество повторений count_replay распознанного текста
-    max_replay = 0
+    # max_replay = 0
+    max_replay = 2
     count_replay = 0
     result_text = ''
 
@@ -88,11 +130,13 @@ def working_with_commands():
             data = stream.read(CHUNK)
             rec.AcceptWaveform(data)
 
+        # print('in while listen count_replay = ', count_replay, '  rec.PartialResult() = ', rec.PartialResult())
+
         # Проверяем, изменился текст или нет и если не изменился, то сколько раз он уже не менялся
         if result_text == rec.PartialResult():
             count_replay += 1
             # Если текст не меняется уже max_replay раз
-            if count_replay > max_replay - 1:
+            if count_replay > max_replay -   1:
                 listen = False
         elif len(rec.PartialResult()) > max_len_rec:
             listen = False
@@ -139,7 +183,6 @@ def main():
     record_seconds = 2
 
     say_text('Программа запущена')
-
 
     # Слушаем постоянно.
     # Здесь поток не стопим, так как важно услышать слово друг, шумы не важны,
