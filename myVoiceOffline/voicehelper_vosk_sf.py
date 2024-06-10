@@ -36,6 +36,7 @@ rec = KaldiRecognizer(model, 16000)
 
 # ****************************************
 player = vlc.MediaPlayer()
+# player.
 
 paused = vlc.State().Paused
 print('paused: ', paused)
