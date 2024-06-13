@@ -40,7 +40,8 @@ def say_text(text):
     engine.say(text)
     engine.runAndWait()
 
-def del_word_friend(result_text):
+def commands_user_to_set(result_text):
+
     print('del_word_friend')
     print(type(result_text))
     print('result_text: ДО:',result_text)
@@ -51,9 +52,11 @@ def del_word_friend(result_text):
     result_text = result_text.replace("}", "")
     result_text = result_text.replace('"', "")
     print('result_text: ПОСЛЕ:',result_text)
-    set_commands = set(result_text.split())
-    print('set_commands: ', set_commands)
-    return result_text
+    set_commands_user = set(result_text.split())
+    print('commands_user_to_set: set_commands: ', set_commands_user)
+
+
+    return set_commands_user
 
 
 def listen_to_user():
@@ -102,25 +105,33 @@ def listen_to_user():
 
     return result_text
 
-def look_for_short_command(result_text):
-
-    if 'играй' in result_text:
+def look_for_short_command(set_commands_user):
+    # if set_commands_user >= {'играй', 'играть', 'пой'}:
+    set_play = {'играй', 'играть', 'пой'}
+    if not set_commands_user.isdisjoint(set_play):
+    # if 'играй' in result_text:
         print('*** look_for_short_command: Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
         play_vlc()
     else:
         print('*** look_for_short_command:  Команда не распознана')
-        say_text('Команда не распознана')
+        say_text(word_user_name + word_hello)
     # ищем и выполняем короткую команду и возвращаемся в main
 
 
 def process_text_main(result_text):
-    if result_text == '':
-        print('*** process_text_main: result_text == ''' )
+    set_commands_user = commands_user_to_set(result_text)
+    set_commands_user -= {'друг', 'дружок', 'дружище'}
+    print('process_text_main 1: set_commands_user:', set_commands_user)
+
+
+    if not set_commands_user: # если множество пустое
+        print('*** process_text_main: set_commands_user пустое' )
         say_text(word_user_name + word_hello)
         result_text = listen_to_user()
+        set_commands_user = commands_user_to_set(result_text)
 
-    look_for_short_command(result_text)
+    look_for_short_command(set_commands_user)
 
 
 def main():
@@ -143,7 +154,6 @@ def main():
             # print('*** main - type(result_text):', type(result_text))
 
             if word_friend in result_text:
-                result_text = del_word_friend(result_text)
                 process_text_main(result_text)
 
             rec.Reset()
