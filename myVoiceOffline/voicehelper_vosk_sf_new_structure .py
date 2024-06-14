@@ -43,15 +43,21 @@ def say_text(text):
     engine.runAndWait()
 
 def commands_user_to_set(result_text):
-    print('commands_user_to_set: result_text:',result_text.replace("\n", ""))
+    # print('commands_user_to_set: result_text:',result_text.replace("\n", ""))
+    result_text = result_text[result_text.find('друг')+4:]
+    # print('после удаления друг', result_text)
     result_text = result_text.replace("\n", "")
     result_text = result_text.replace("partial", "")
     result_text = result_text.replace(":", "")
     result_text = result_text.replace("{", "")
     result_text = result_text.replace("}", "")
     result_text = result_text.replace('"', "")
+    # result_text = result_text[result_text.find('друг')+4:]
+
+    # print('commands_user_to_set: result_text после удаления друг:', result_text)
+
     set_commands_user = set(result_text.split())
-    print('commands_user_to_set: set_commands_user: ', set_commands_user)
+    # print('commands_user_to_set: set_commands_user: ', set_commands_user)
 
     return set_commands_user
 
@@ -97,7 +103,7 @@ def listen_to_user():
 
     print('listen_to_user: result_tex: ', result_text.replace("\n", ""))
 
-    stream.stop_stream()
+    # stream.stop_stream()
     rec.Reset()
 
     return result_text
@@ -111,23 +117,30 @@ def look_for_short_command(set_commands_user):
         say_text(word_user_name + ', включаю плеер')
         play_vlc()
     else:
+        # ни одна из коротких команд (играй, найди, назад, вперед, время и проч) не найдена =>
+        # значит ждем когда пользователь опять обратится к другу, поэтому
+        #  останавливаем поток и перезапускаем распознавание
+        # stream.stop_stream()
+        # rec.Reset()
+
         print('look_for_short_command:  Команда не распознана')
         say_text(word_user_name + word_hello)
     # ищем и выполняем короткую команду и возвращаемся в main
+    stream.stop_stream()
+    rec.Reset()
+    stream.start_stream()
 
 
 def process_text_main(result_text):
     set_commands_user = commands_user_to_set(result_text)
-    set_commands_user -= {'друг', 'дружок', 'дружище'}
-    print('process_text_main: set_commands_user:', set_commands_user)
-
+    set_commands_user -= {'друг'}
+    # print('process_text_main: set_commands_user:', set_commands_user)
 
     if not set_commands_user: # если множество пустое
         print('process_text_main: set_commands_user пустое' )
         say_text(word_user_name + word_hello)
-        print('process_text_main: word_user_name + word_hello', word_user_name + word_hello )
         result_text = listen_to_user()
-        print('process_text_main: result_text', result_text)
+        print('process_text_main: result_text', result_text.replace("\n", ""))
         set_commands_user = commands_user_to_set(result_text)
 
     look_for_short_command(set_commands_user)
@@ -150,14 +163,17 @@ def main():
             print('main: result_text:', result_text.replace("\n", ""))
 
             if word_friend in result_text:
+                print('main: обнаружено слово друг')
                 process_text_main(result_text)
-
-            rec.Reset()
-            # to do убрать перезапуск, чтобы дольше слушать?
+            else:
+                print('main: rec.Reset()')
+                rec.Reset()
 
     finally:
-        print('Программа закрыта')
+        stream.stop_stream()
+        stream.close()
         py_audio.terminate()
+        print('Программа закрыта')
 
 
 if __name__ == '__main__':
