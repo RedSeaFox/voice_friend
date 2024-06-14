@@ -109,13 +109,21 @@ def listen_to_user():
     return result_text
 
 def look_for_short_command(set_commands_user):
-    # if set_commands_user >= {'играй', 'играть', 'пой'}:
     set_play = {'играй', 'играть', 'пой'}
-    if not set_commands_user.isdisjoint(set_play):
-    # if 'играй' in result_text:
+    set_seek = {'найди', 'ищи', 'поиск', 'найти'}
+
+    if not set_commands_user:
+        say_text(word_user_name + ', я не услышал команду. Обратись опять к другу')
+        print('look_for_short_command: я не услышал команду. Обратись опять к другу')
+    elif not set_commands_user.isdisjoint(set_play):
+        # if 'играй' in result_text:
         print('look_for_short_command: Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
         play_vlc()
+    elif not set_commands_user.isdisjoint(set_seek):
+        set_commands_user -= set_seek
+        print('look_for_short_command: Ищу', set_commands_user)
+        say_text(word_user_name + ', ищу ' +  ' '.join(set_commands_user))
     else:
         # ни одна из коротких команд (играй, найди, назад, вперед, время и проч) не найдена =>
         # значит ждем когда пользователь опять обратится к другу, поэтому
@@ -123,8 +131,10 @@ def look_for_short_command(set_commands_user):
         # stream.stop_stream()
         # rec.Reset()
 
-        print('look_for_short_command:  Команда не распознана')
-        say_text(word_user_name + word_hello)
+        # print('look_for_short_command:  ' , word_user_name , word_hello )
+        # say_text(word_user_name + word_hello)
+        say_text(word_user_name + ', я не смог распознать команду. Обратись опять к другу')
+        print('look_for_short_command: я не смог распознать команду. Обратись опять к другу')
     # ищем и выполняем короткую команду и возвращаемся в main
     stream.stop_stream()
     rec.Reset()
@@ -134,11 +144,12 @@ def look_for_short_command(set_commands_user):
 def process_text_main(result_text):
     set_commands_user = commands_user_to_set(result_text)
     set_commands_user -= {'друг'}
-    # print('process_text_main: set_commands_user:', set_commands_user)
+    print('process_text_main: set_commands_user:', set_commands_user)
 
     if not set_commands_user: # если множество пустое
         print('process_text_main: set_commands_user пустое' )
         say_text(word_user_name + word_hello)
+        print('look_for_short_command:  ', word_user_name , word_hello )
         result_text = listen_to_user()
         print('process_text_main: result_text', result_text.replace("\n", ""))
         set_commands_user = commands_user_to_set(result_text)
