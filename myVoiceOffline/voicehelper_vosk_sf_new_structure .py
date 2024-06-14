@@ -41,20 +41,17 @@ def say_text(text):
     engine.runAndWait()
 
 def commands_user_to_set(result_text):
-
-    print('del_word_friend')
-    print(type(result_text))
-    print('result_text: ДО:',result_text)
+    print('commands_user_to_set: type(result_text):', type(result_text))
+    print('commands_user_to_set: result_text: ДО:',result_text)
     result_text = result_text.replace("\n", "")
     result_text = result_text.replace("partial", "")
     result_text = result_text.replace(":", "")
     result_text = result_text.replace("{", "")
     result_text = result_text.replace("}", "")
     result_text = result_text.replace('"', "")
-    print('result_text: ПОСЛЕ:',result_text)
+    print('commands_user_to_set: result_text: ПОСЛЕ:',result_text)
     set_commands_user = set(result_text.split())
     print('commands_user_to_set: set_commands: ', set_commands_user)
-
 
     return set_commands_user
 
@@ -98,7 +95,7 @@ def listen_to_user():
             count_replay = 0
             result_text = rec.PartialResult()
 
-    print('*** listen_to_user: result_tex: ', result_text)
+    print('listen_to_user: result_tex: ', result_text)
 
     stream.stop_stream()
     rec.Reset()
@@ -110,11 +107,11 @@ def look_for_short_command(set_commands_user):
     set_play = {'играй', 'играть', 'пой'}
     if not set_commands_user.isdisjoint(set_play):
     # if 'играй' in result_text:
-        print('*** look_for_short_command: Включаю плеер')
+        print('look_for_short_command: Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
         play_vlc()
     else:
-        print('*** look_for_short_command:  Команда не распознана')
+        print('look_for_short_command:  Команда не распознана')
         say_text(word_user_name + word_hello)
     # ищем и выполняем короткую команду и возвращаемся в main
 
@@ -122,11 +119,11 @@ def look_for_short_command(set_commands_user):
 def process_text_main(result_text):
     set_commands_user = commands_user_to_set(result_text)
     set_commands_user -= {'друг', 'дружок', 'дружище'}
-    print('process_text_main 1: set_commands_user:', set_commands_user)
+    print('process_text_main: set_commands_user:', set_commands_user)
 
 
     if not set_commands_user: # если множество пустое
-        print('*** process_text_main: set_commands_user пустое' )
+        print('process_text_main: set_commands_user пустое' )
         say_text(word_user_name + word_hello)
         result_text = listen_to_user()
         set_commands_user = commands_user_to_set(result_text)
@@ -148,7 +145,7 @@ def main():
 
             result_text = rec.PartialResult()
 
-            print('*** main - result_text:', result_text.replace("\n", ""))
+            print('main: result_text:', result_text.replace("\n", ""))
             # print('*** main - rec', rec)
             # print('*** main - result_text:', result_text)
             # print('*** main - type(result_text):', type(result_text))
