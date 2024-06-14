@@ -81,7 +81,7 @@ def listen_to_user():
     max_replay = 1
     count_replay = 0
     result_text = ''
-    max_len_rec = 300
+    max_len_rec = 100
 
     stream.start_stream()
     while listen:
@@ -103,7 +103,6 @@ def listen_to_user():
 
     print('listen_to_user: result_tex: ', result_text.replace("\n", ""))
 
-    # stream.stop_stream()
     rec.Reset()
 
     return result_text
@@ -112,6 +111,7 @@ def look_for_short_command(set_commands_user):
     set_play = {'играй', 'играть', 'пой'}
     set_seek = {'найди', 'ищи', 'поиск', 'найти'}
 
+    # ищем и выполняем короткую команду
     if not set_commands_user:
         say_text(word_user_name + ', я не услышал команду. Обратись опять к другу')
         print('look_for_short_command: я не услышал команду. Обратись опять к другу')
@@ -126,19 +126,13 @@ def look_for_short_command(set_commands_user):
         say_text(word_user_name + ', ищу ' +  ' '.join(set_commands_user))
     else:
         # ни одна из коротких команд (играй, найди, назад, вперед, время и проч) не найдена =>
-        # значит ждем когда пользователь опять обратится к другу, поэтому
-        #  останавливаем поток и перезапускаем распознавание
-        # stream.stop_stream()
-        # rec.Reset()
-
-        # print('look_for_short_command:  ' , word_user_name , word_hello )
-        # say_text(word_user_name + word_hello)
+        # значит ждем когда пользователь опять обратится к другу
         say_text(word_user_name + ', я не смог распознать команду. Обратись опять к другу')
         print('look_for_short_command: я не смог распознать команду. Обратись опять к другу')
-    # ищем и выполняем короткую команду и возвращаемся в main
-    stream.stop_stream()
+     # и возвращаемся в main
+    # stream.stop_stream()
     rec.Reset()
-    stream.start_stream()
+    # stream.start_stream()
 
 
 def process_text_main(result_text):
@@ -147,9 +141,14 @@ def process_text_main(result_text):
     print('process_text_main: set_commands_user:', set_commands_user)
 
     if not set_commands_user: # если множество пустое
+        # Останавливаем поток, чтобы не попал шум (например приветствие друга) в речь пользователя
+        # stream.stop_stream()
+        # и перезапускаем распознавание, чтобы убрать остатки былых слов
+        rec.Reset()
+        # stream.start_stream()
         print('process_text_main: set_commands_user пустое' )
+        print('process_text_main:  ', word_user_name , word_hello )
         say_text(word_user_name + word_hello)
-        print('look_for_short_command:  ', word_user_name , word_hello )
         result_text = listen_to_user()
         print('process_text_main: result_text', result_text.replace("\n", ""))
         set_commands_user = commands_user_to_set(result_text)
@@ -165,6 +164,11 @@ def main():
     try:
         listen = True
         while listen:
+            # *************************
+            # time.sleep(0.5)
+            # *************************
+
+
             for _ in range(0, RATE // CHUNK * record_seconds):
                 data = stream.read(CHUNK)
                 rec.AcceptWaveform(data)
