@@ -28,8 +28,10 @@ word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
-# Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит системные ресурсы для PortAudio
+# Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит
+# системные ресурсы для PortAudio (подключаемся к микрофону)
 py_audio = pyaudio.PyAudio()
+# Открываем поток для чтения (input=True) данных с микрофона по-умолчанию и задаем параметры
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 rec = KaldiRecognizer(model, 16000)
 
@@ -41,17 +43,15 @@ def say_text(text):
     engine.runAndWait()
 
 def commands_user_to_set(result_text):
-    print('commands_user_to_set: type(result_text):', type(result_text))
-    print('commands_user_to_set: result_text: ДО:',result_text)
+    print('commands_user_to_set: result_text:',result_text.replace("\n", ""))
     result_text = result_text.replace("\n", "")
     result_text = result_text.replace("partial", "")
     result_text = result_text.replace(":", "")
     result_text = result_text.replace("{", "")
     result_text = result_text.replace("}", "")
     result_text = result_text.replace('"', "")
-    print('commands_user_to_set: result_text: ПОСЛЕ:',result_text)
     set_commands_user = set(result_text.split())
-    print('commands_user_to_set: set_commands: ', set_commands_user)
+    print('commands_user_to_set: set_commands_user: ', set_commands_user)
 
     return set_commands_user
 
@@ -95,7 +95,7 @@ def listen_to_user():
             count_replay = 0
             result_text = rec.PartialResult()
 
-    print('listen_to_user: result_tex: ', result_text)
+    print('listen_to_user: result_tex: ', result_text.replace("\n", ""))
 
     stream.stop_stream()
     rec.Reset()
@@ -125,7 +125,9 @@ def process_text_main(result_text):
     if not set_commands_user: # если множество пустое
         print('process_text_main: set_commands_user пустое' )
         say_text(word_user_name + word_hello)
+        print('process_text_main: word_user_name + word_hello', word_user_name + word_hello )
         result_text = listen_to_user()
+        print('process_text_main: result_text', result_text)
         set_commands_user = commands_user_to_set(result_text)
 
     look_for_short_command(set_commands_user)
@@ -146,14 +148,12 @@ def main():
             result_text = rec.PartialResult()
 
             print('main: result_text:', result_text.replace("\n", ""))
-            # print('*** main - rec', rec)
-            # print('*** main - result_text:', result_text)
-            # print('*** main - type(result_text):', type(result_text))
 
             if word_friend in result_text:
                 process_text_main(result_text)
 
             rec.Reset()
+            # to do убрать перезапуск, чтобы дольше слушать?
 
     finally:
         print('Программа закрыта')
