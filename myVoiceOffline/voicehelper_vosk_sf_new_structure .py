@@ -22,21 +22,38 @@ FORMAT = pyaudio.paInt16 # глубина звука = 16 бит = 2 байта
 model = Model("model")
 
 word_friend = 'друг'
-# word_hello = ', я слушаю тебя.'
 word_hello = ', скажи твою команду.'
 word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
 # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит
-# системные ресурсы для PortAudio (подключаемся к микрофону)
+# системные ресурсы для PortAudio (короче подключаемся к микрофону)
 py_audio = pyaudio.PyAudio()
 # Открываем поток для чтения (input=True) данных с микрофона по-умолчанию и задаем параметры
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 rec = KaldiRecognizer(model, 16000)
 
+# Большинство команд к другу касаются плеера vlc, поэтому он должен быть всегда доступен
+media_player = vlc.MediaListPlayer()
+
 def play_vlc():
-    pass
+    # Если плеер уже запущен, но находится в состоянии пауза, то запускаем его (продолжаем играть)
+    if media_player.get_state() == vlc.State(4):
+        media_player.pause()
+    else:
+        # Если плеер еще не запущен - запускаем
+        player = media_player.get_instance()
+        media = player.media_new("vod.mp3")
+        media_list = player.media_list_new()
+        media_list.add_media(media)
+        media_player.set_media_list(media_list)
+
+        media_player.play()
+
+        time.sleep(0.1)
+
+
 
 def say_text(text):
     engine.say(text)
@@ -164,11 +181,6 @@ def main():
     try:
         listen = True
         while listen:
-            # *************************
-            # time.sleep(0.5)
-            # *************************
-
-
             for _ in range(0, RATE // CHUNK * record_seconds):
                 data = stream.read(CHUNK)
                 rec.AcceptWaveform(data)
@@ -178,12 +190,20 @@ def main():
             print('main: result_text:', result_text.replace("\n", ""))
 
             if word_friend in result_text:
+                # Как только услышали слово друг, останавливаем плеер, если он включен
+                if media_player.is_playing():
+                    media_player.pause()
+
                 print('main: обнаружено слово друг')
                 process_text_main(result_text)
-            else:
-                print('main: rec.Reset()')
-                rec.Reset()
-
+            # else:
+            #     print('main: rec.Reset()')
+            #     rec.Reset()
+            print('main: rec.Reset()')
+            rec.Reset()
+            result_text = ''
+            stream.stop_stream()
+            stream.start_stream()
     finally:
         stream.stop_stream()
         stream.close()
