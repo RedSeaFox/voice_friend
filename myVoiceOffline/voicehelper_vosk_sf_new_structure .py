@@ -61,7 +61,7 @@ def say_text(text):
 
 def commands_user_to_set(result_text):
     # print('commands_user_to_set: result_text:',result_text.replace("\n", ""))
-    result_text = result_text[result_text.find('друг')+4:]
+    # result_text = result_text[result_text.find('друг')+4:]
     # print('после удаления друг', result_text)
     result_text = result_text.replace("\n", "")
     result_text = result_text.replace("partial", "")
@@ -71,10 +71,10 @@ def commands_user_to_set(result_text):
     result_text = result_text.replace('"', "")
     # result_text = result_text[result_text.find('друг')+4:]
 
-    # print('commands_user_to_set: result_text после удаления друг:', result_text)
+    print('commands_user_to_set: result_text после удаления служебных символов:', result_text)
 
     set_commands_user = set(result_text.split())
-    # print('commands_user_to_set: set_commands_user: ', set_commands_user)
+    print('commands_user_to_set: set_commands_user: ', set_commands_user)
 
     return set_commands_user
 
@@ -153,7 +153,9 @@ def look_for_short_command(set_commands_user):
 
 
 def process_text_main(result_text):
+    print('process_text_main: result_text в начале', result_text)
     set_commands_user = commands_user_to_set(result_text)
+    print('process_text_main: result_text после перевода в set', result_text)
     set_commands_user -= {'друг'}
     print('process_text_main: set_commands_user:', set_commands_user)
 
@@ -172,6 +174,18 @@ def process_text_main(result_text):
 
     look_for_short_command(set_commands_user)
 
+def main_to_set(result_text):
+    result_text = result_text.replace("\n", "")
+    result_text = result_text.replace("partial", "")
+    result_text = result_text.replace(":", "")
+    result_text = result_text.replace("{", "")
+    result_text = result_text.replace("}", "")
+    result_text = result_text.replace('"', "")
+
+    set_main = set(result_text.split())
+
+    return set_main
+
 
 def main():
     record_seconds = 2
@@ -187,9 +201,18 @@ def main():
 
             result_text = rec.PartialResult()
 
-            print('main: result_text:', result_text.replace("\n", ""))
+            print('main: result_text 1 :', result_text.replace("\n", ""))
+            # print('main: result_text 2 :', ' ' + result_text.replace("\n", "") + ' ')
+            # print('main: result_text 3 :', result_text)
+            # print('main: result_text 4 :', ' ' + result_text + ' ')
 
-            if word_friend in result_text:
+            # set_main = main_to_set(result_text)
+
+            # print(set_main)
+
+            # if word_friend in result_text:
+            if word_friend in result_text and word_friend in main_to_set(result_text):
+            # if word_friend in set_main:
                 # Как только услышали слово друг, останавливаем плеер, если он включен
                 if media_player.is_playing():
                     media_player.pause()
