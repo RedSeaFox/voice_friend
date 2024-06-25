@@ -75,14 +75,13 @@ def commands_to_set(result_text):
 
 def listen_to_user():
     record_seconds = 2
-
     listen = True
     max_replay = 1
     count_replay = 0
-    result_text = ''
     max_len_rec = 100
+    result_text = ''
 
-    stream.start_stream()
+    # stream.start_stream() Надо?
     while listen:
         for _ in range(0, RATE // CHUNK * record_seconds):
             data = stream.read(CHUNK)
@@ -101,8 +100,6 @@ def listen_to_user():
             result_text = rec.PartialResult()
 
     print('listen_to_user: result_tex: ', result_text.replace("\n", ""))
-
-    # rec.Reset() # Надо?
 
     return result_text
 
@@ -131,14 +128,8 @@ def look_for_short_command(set_commands):
         # значит ждем когда пользователь опять обратится к другу
         say_text(word_user_name + ', я не смог распознать команду. Обратись опять к другу')
         print('look_for_short_command: я не смог распознать команду. Обратись опять к другу')
-     # Возвращаемся в main
-    # stream.stop_stream()
-    # rec.Reset() # Надо?
-    # stream.start_stream()
-
 
 def process_text_main(set_commands):
-    # set_commands -= {'друг'}
     set_commands -= {word_friend}
     print('process_text_main: set_commands_user без слова друг:', set_commands)
 
@@ -176,15 +167,7 @@ def main():
             result_text = rec.PartialResult()
 
             print('main: result_text 1 :', result_text.replace("\n", ""))
-            # print('main: result_text 2 :', ' ' + result_text.replace("\n", "") + ' ')
-            # print('main: result_text 3 :', result_text)
-            # print('main: result_text 4 :', ' ' + result_text + ' ')
 
-            # set_main = main_to_set(result_text)
-
-            # print(set_main)
-
-            # if word_friend in result_text:
             if word_friend in result_text:
                 set_commands = commands_to_set(result_text)
                 if word_friend in set_commands:
@@ -193,7 +176,6 @@ def main():
                         media_player.pause()
 
                     print('main: обнаружено слово друг', ', set_commands=', set_commands, ', запускаем process_text_main')
-                    # process_text_main(result_text)
                     process_text_main(set_commands)
 
             rec.Reset()
