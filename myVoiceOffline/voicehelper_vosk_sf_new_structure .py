@@ -68,6 +68,9 @@ def play_vlc():
         # Пока загружается только плейлист из файла my_playlist.m3u
         playlist_list = load_playlist('my_playlist.m3u')
 
+        if len(playlist_list) == 0:
+            say_text('Плейлист пустой')
+
         player = media_player.get_instance()
         media_list = player.media_list_new()
 
