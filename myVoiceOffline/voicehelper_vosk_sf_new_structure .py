@@ -1,5 +1,5 @@
-import sys
-
+import os.path
+import time
 # Нужен микрофон. Для этого можно использовать pyaudio.
 # Можно использовать SpeechRecognition, который все равно использует pyaudio.
 # PyAudio предоставляет Python связь с PortAudio v19 (кроссплатформенной библиотекой ввода-вывода аудио)
@@ -12,7 +12,6 @@ from vosk import Model, KaldiRecognizer
 import pyttsx3
 # Для воспроизведения аудио файлов будем использовать vlc
 import vlc
-import time
 
 
 CHANNELS = 1  # моно
@@ -38,16 +37,43 @@ rec = KaldiRecognizer(model, 16000)
 media_player = vlc.MediaListPlayer()
 
 
+def load_playlist(playlist_name: str):
+    playlist_list = list()
+
+    try:
+        playlist_m3u = open('my_playlist.m3u')
+        playlist_list_from_m3u = playlist_m3u.readlines()
+    except FileNotFoundError:
+        say_text('Плейлист не найден. Воспроизведение не возможно')
+        return playlist_list
+
+    for line in playlist_list_from_m3u:
+        if line[0] == '#':
+            continue
+        elif line[0:5] == 'file:':
+            playlist_list.append(os.path.abspath(line[8:]))
+        elif line[0:6] == 'https:':
+            # list_for_tuple.append(os.path.abspath(line))
+            playlist_list.append(line.rstrip())
+
+    return playlist_list
+
 def play_vlc():
     # Если плеер уже запущен, но находится в состоянии пауза, то запускаем его (продолжаем играть)
     if media_player.get_state() == vlc.State(4):
         media_player.pause()
     else:
         # Если плеер еще не запущен - запускаем
+        # Плейлист из файла загружаем в список (список, а не кортеж, т.к. планируется добавление в плейлист)
+        # Пока загружается только плейлист из файла my_playlist.m3u
+        playlist_list = load_playlist('my_playlist.m3u')
+
         player = media_player.get_instance()
-        media = player.media_new("vod.mp3")
         media_list = player.media_list_new()
-        media_list.add_media(media)
+
+        for song in playlist_list:
+            media_list.add_media(song.rstrip())
+
         media_player.set_media_list(media_list)
 
         media_player.play()
