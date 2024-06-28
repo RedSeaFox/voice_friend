@@ -46,12 +46,18 @@ def load_playlist(playlist_name: str):
     except FileNotFoundError:
         say_text('Плейлист не найден. Воспроизведение не возможно')
         return playlist_list
+    except Exception:
+        say_text('Плейлист не загружен. Неизвестная ошибка. Обратитесь к разработчику')
+        return playlist_list
 
     for line in playlist_list_from_m3u:
         if line[0] == '#':
             continue
         elif line[0:5] == 'file:':
-            playlist_list.append(os.path.abspath(line[8:]))
+            # playlist_list.append(os.path.abspath(line[8:]))
+            media_path = os.path.abspath(line[8:].rstrip())
+            if os.path.isfile(media_path):
+                playlist_list.append(media_path)
         elif line[0:6] == 'https:':
             # list_for_tuple.append(os.path.abspath(line))
             playlist_list.append(line.rstrip())
@@ -70,6 +76,7 @@ def play_vlc():
 
         if len(playlist_list) == 0:
             say_text('Плейлист пустой')
+            return
 
         player = media_player.get_instance()
         media_list = player.media_list_new()
