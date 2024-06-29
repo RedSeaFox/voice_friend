@@ -40,8 +40,12 @@ media_player = vlc.MediaListPlayer()
 def load_playlist(playlist_name: str):
     playlist_list = list()
 
+    print('Начало составления списка', time.time())
+
     try:
-        playlist_m3u = open('my_playlist.m3u')
+        playlist_m3u = open('my_playlist.m3u', encoding='utf-8')
+        # playlist_m3u = open('my_playlist разные тесты.m3u', encoding='utf-8')
+        # playlist_m3u = open('8941.m3u')
         playlist_list_from_m3u = playlist_m3u.readlines()
     except FileNotFoundError:
         say_text('Плейлист не найден. Воспроизведение не возможно')
@@ -61,6 +65,10 @@ def load_playlist(playlist_name: str):
         elif line[0:6] == 'https:':
             # list_for_tuple.append(os.path.abspath(line))
             playlist_list.append(line.rstrip())
+
+    print('Конец составления списка', time.time())
+    print('playlist_list', playlist_list)
+    # playlist_list = list()
 
     return playlist_list
 
@@ -178,8 +186,8 @@ def process_text_main(set_commands):
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
-        print('process_text_main: set_commands пустое' )
-        print('process_text_main:  ', word_user_name, word_hello )
+        print('process_text_main: set_commands пустое')
+        print('process_text_main:  ', word_user_name, word_hello)
         result_text = listen_to_user()
         print('process_text_main: result_text', result_text.replace("\n", ""))
         set_commands = commands_to_set(result_text)
@@ -217,7 +225,6 @@ def main():
             rec.Reset()
             stream.stop_stream()
             stream.start_stream()
-            result_text = ''
             print('main: rec.Reset(), stream.stop_stream(), stream.start_stream()')
 
     finally:
