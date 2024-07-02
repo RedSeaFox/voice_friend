@@ -26,6 +26,8 @@ word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
+is_playing = False
+
 # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит
 # системные ресурсы для PortAudio (короче подключаемся к микрофону)
 py_audio = pyaudio.PyAudio()
@@ -40,7 +42,7 @@ media_player = vlc.MediaListPlayer()
 def load_playlist(playlist_name: str):
     playlist_list = list()
 
-    print('Начало составления списка', time.time())
+    print('load_playlist() : Начало составления списка', time.time())
 
     try:
         playlist_m3u = open('my_playlist.m3u', encoding='utf-8')
@@ -48,10 +50,10 @@ def load_playlist(playlist_name: str):
         # playlist_m3u = open('8941.m3u')
         playlist_list_from_m3u = playlist_m3u.readlines()
     except FileNotFoundError:
-        say_text('Плейлист не найден. Воспроизведение не возможно')
+        say_text('load_playlist: Плейлист не найден. Воспроизведение не возможно')
         return playlist_list
     except Exception:
-        say_text('Плейлист не загружен. Неизвестная ошибка. Обратитесь к разработчику')
+        say_text('load_playlist: Плейлист не загружен. Неизвестная ошибка. Обратитесь к разработчику')
         return playlist_list
 
     for line in playlist_list_from_m3u:
@@ -66,15 +68,17 @@ def load_playlist(playlist_name: str):
             # list_for_tuple.append(os.path.abspath(line))
             playlist_list.append(line.rstrip())
 
-    print('Конец составления списка', time.time())
-    print('playlist_list', playlist_list)
+    print('load_playlist(): Конец составления списка', time.time())
+    print('load_playlist(): playlist_list', playlist_list)
     # playlist_list = list()
 
     return playlist_list
 
 def play_vlc():
+    global is_playing
     # Если плеер уже запущен, но находится в состоянии пауза, то запускаем его (продолжаем играть)
-    if media_player.get_state() == vlc.State(4):
+    # if media_player.get_state() == vlc.State(4):
+    if is_playing and media_player.get_state() == vlc.State(4):
         media_player.pause()
     else:
         # Если плеер еще не запущен - запускаем
@@ -96,7 +100,9 @@ def play_vlc():
 
         media_player.play()
 
-        time.sleep(0.1)
+        is_playing = True
+
+        # time.sleep(0.1)
 
 
 def say_text(text):
@@ -143,13 +149,13 @@ def listen_to_user():
             count_replay = 0
             result_text = rec.PartialResult()
 
-    print('listen_to_user: result_tex: ', result_text.replace("\n", ""))
+    print('listen_to_user(): result_tex: ', result_text.replace("\n", ""))
 
     return result_text
 
 
 def look_for_short_command(set_commands):
-    print('look_for_short_command: set_commands: ', set_commands),
+    print('look_for_short_command(): set_commands: ', set_commands),
     set_play = {'играй', 'играть', 'пой', 'петь'}
     set_seek = {'найди', 'ищи', 'поиск', 'найти'}
 
@@ -158,24 +164,24 @@ def look_for_short_command(set_commands):
     # Если в словах пользователя не было ничего или было только слово друг
     if not set_commands:
         say_text(word_user_name + ', я не услышал команду. Обратись опять к другу')
-        print('look_for_short_command: я не услышал команду. Обратись опять к другу')
+        print('look_for_short_command(): я не услышал команду. Обратись опять к другу')
     elif not set_commands.isdisjoint(set_play):
-        print('look_for_short_command: Включаю плеер')
+        print('look_for_short_command(): Включаю плеер')
         say_text(word_user_name + ', включаю плеер')
         play_vlc()
     elif not set_commands.isdisjoint(set_seek):
         set_commands -= set_seek
-        print('look_for_short_command: Ищу')
+        print('look_for_short_command(): Ищу')
         say_text(word_user_name + ', ищу ' + ' '.join(set_commands))
     else:
         # ни одна из коротких команд (играй, найди, назад, вперед, время и проч) не найдена =>
         # значит ждем когда пользователь опять обратится к другу
         say_text(word_user_name + ', я не смог распознать команду. Обратись опять к другу')
-        print('look_for_short_command: я не смог распознать команду. Обратись опять к другу')
+        print('look_for_short_command(): я не смог распознать команду. Обратись опять к другу')
 
 def process_text_main(set_commands):
     set_commands -= {word_friend}
-    print('process_text_main: set_commands_user без слова друг:', set_commands)
+    print('process_text_main(): set_commands_user без слова друг:', set_commands)
 
     # Если кроме слова друг во множестве больше не было других слов (множество пустое),
     # значит надо запросить дальнейшие команды
@@ -186,10 +192,10 @@ def process_text_main(set_commands):
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
-        print('process_text_main: set_commands пустое')
-        print('process_text_main:  ', word_user_name, word_hello)
+        print('process_text_main(): set_commands пустое')
+        print('process_text_main():  ', word_user_name, word_hello)
         result_text = listen_to_user()
-        print('process_text_main: result_text', result_text.replace("\n", ""))
+        print('process_text_main(): result_text', result_text.replace("\n", ""))
         set_commands = commands_to_set(result_text)
         set_commands -= {word_friend}
 
@@ -199,7 +205,7 @@ def process_text_main(set_commands):
 def main():
     record_seconds = 2
 
-    say_text('Программа запущена')
+    say_text('main(): Программа запущена')
 
     try:
         listen = True
@@ -210,7 +216,7 @@ def main():
 
             result_text = rec.PartialResult()
 
-            print('main: result_text 1 :', result_text.replace("\n", ""))
+            print('main(): result_text :', result_text.replace("\n", ""))
 
             if word_friend in result_text:
                 set_commands = commands_to_set(result_text)
@@ -219,8 +225,29 @@ def main():
                     if media_player.is_playing():
                         media_player.pause()
 
-                    print('main: обнаружено слово друг', ', set_commands=', set_commands, ', запускаем process_text_main')
+                    print('main(): обнаружено слово друг', ', set_commands=', set_commands, ', запускаем process_text_main')
                     process_text_main(set_commands)
+
+            # l = media_player.get_media()
+            print('main(): media_player.get_state(): ', media_player.get_state())
+            print('main(): media_player.is_playing(): ', media_player.is_playing())
+            # print(l)
+
+            if is_playing and media_player.get_state() == vlc.State(6):
+                mp = media_player.get_media_player()
+                med = mp.get_media()
+                b1=med.tracks_get()
+                b2=med.get_tracks_info()
+                b3=med.get_mrl()
+                # b4=med.get_meta()
+                b5=med.get_state()
+                b6=med.get_type()
+
+
+                print('main(): is_playing: ', is_playing, 'Ooo, err')
+                pl = media_player.get_instance()
+                media_player.next()
+                # media_player.se
 
             rec.Reset()
             stream.stop_stream()
@@ -231,7 +258,7 @@ def main():
         stream.stop_stream()
         stream.close()
         py_audio.terminate()
-        print('Программа закрыта')
+        print('main: Программа закрыта')
 
 
 if __name__ == '__main__':
