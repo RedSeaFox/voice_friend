@@ -26,7 +26,6 @@ word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
-is_playing = False
 
 # Чтобы использовать PyAudio, сначала создаем экземпляр PyAudio, который получит
 # системные ресурсы для PortAudio (короче подключаемся к микрофону)
@@ -35,8 +34,10 @@ py_audio = pyaudio.PyAudio()
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 rec = KaldiRecognizer(model, 16000)
 
-# Большинство команд к другу касаются плеера vlc, поэтому он должен быть всегда доступен
-media_player = vlc.MediaListPlayer()
+# Большинство команд к другу касаются плеера, поэтому он должен быть всегда доступен
+vlc_instance = vlc.Instance()
+# media_list_player = vlc.MediaListPlayer()
+media_list_player = vlc_instance.media_list_player_new()
 
 
 def load_playlist(playlist_name: str):
@@ -75,32 +76,30 @@ def load_playlist(playlist_name: str):
     return playlist_list
 
 def play_vlc():
-    global is_playing
     # Если плеер уже запущен, но находится в состоянии пауза, то запускаем его (продолжаем играть)
-    # if media_player.get_state() == vlc.State(4):
-    if is_playing and media_player.get_state() == vlc.State(4):
-        media_player.pause()
+    if media_list_player.get_state() == vlc.State(4):
+        media_list_player.pause()
     else:
-        # Если плеер еще не запущен - запускаем
+        # Если плеер еще не запущен - запускаем.
+        # При этом создаем новый плейлист и загружаем в него список
+
         # Плейлист из файла загружаем в список (список, а не кортеж, т.к. планируется добавление в плейлист)
-        # Пока загружается только плейлист из файла my_playlist.m3u
+        # Пока загружается только плейлист из файла с названием my_playlist.m3u
         playlist_list = load_playlist('my_playlist.m3u')
 
         if len(playlist_list) == 0:
-            say_text('Плейлист пустой')
+            say_text('play_vlc(): Плейлист пустой')
             return
 
-        player = media_player.get_instance()
-        media_list = player.media_list_new()
+        # vlc_instance = media_list_player.get_instance()
+        media_list = vlc_instance.media_list_new()
 
         for song in playlist_list:
             media_list.add_media(song.rstrip())
 
-        media_player.set_media_list(media_list)
+        media_list_player.set_media_list(media_list)
 
-        media_player.play()
-
-        is_playing = True
+        media_list_player.play()
 
         # time.sleep(0.1)
 
@@ -205,7 +204,7 @@ def process_text_main(set_commands):
 def main():
     record_seconds = 2
 
-    say_text('main(): Программа запущена')
+    say_text('Программа запущена')
 
     try:
         listen = True
@@ -216,38 +215,58 @@ def main():
 
             result_text = rec.PartialResult()
 
-            print('main(): result_text :', result_text.replace("\n", ""))
+            print('main(): result_text :', result_text.replace("\n", ""), end='\n\n')
+
+            print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
+            print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
 
             if word_friend in result_text:
                 set_commands = commands_to_set(result_text)
                 if word_friend in set_commands:
                     # Как только услышали слово друг, останавливаем плеер, если он включен
-                    if media_player.is_playing():
-                        media_player.pause()
+                    if media_list_player.is_playing():
+                        media_list_player.pause()
 
                     print('main(): обнаружено слово друг', ', set_commands=', set_commands, ', запускаем process_text_main')
                     process_text_main(set_commands)
 
-            # l = media_player.get_media()
-            print('main(): media_player.get_state(): ', media_player.get_state())
-            print('main(): media_player.is_playing(): ', media_player.is_playing())
-            # print(l)
+            print('main() after search friend: media_list_player.get_state(): ', media_list_player.get_state())
+            print('main(): after search friend media_list_player.is_playing(): ', media_list_player.is_playing())
 
-            if is_playing and media_player.get_state() == vlc.State(6):
-                mp = media_player.get_media_player()
-                med = mp.get_media()
-                b1=med.tracks_get()
-                b2=med.get_tracks_info()
-                b3=med.get_mrl()
-                # b4=med.get_meta()
-                b5=med.get_state()
-                b6=med.get_type()
+            # vlc.State(6) может быть или если список закончился или если файл не воспроизводится (не медиа формат)
+            if media_list_player.get_state() == vlc.State(6):
+                media_player = media_list_player.get_media_player()
 
+                # Если воспроизведение еще не началось, то это не медиа файл
+                if media_player.get_position() == 0:
+                    media_list_player.next()
 
-                print('main(): is_playing: ', is_playing, 'Ooo, err')
-                pl = media_player.get_instance()
-                media_player.next()
-                # media_player.se
+                # Можно получить текущий воспроизводимый файл
+                med = media_player.get_media()
+                # med.tracks_get() если None, то значит это не медиа файл.
+                # Но использовать это условие нельзя, чтобы перейти к следующему треку,
+                # так как текущий неправильный файл может быть последним в списке.
+                # b1=med.tracks_get()
+                # Смотрела также эти варианты
+                # b3=med.get_mrl() можно получить имя трека
+                # b2=med.get_tracks_info()
+                # b5=med.get_state()
+                # b6=med.get_type()
+
+                print('main() (if media_list_player.get_state() == vlc.State(6)): ', media_list_player.get_state() == vlc.State(6))
+                print('main(): med.get_mrl() = ', med.get_mrl())
+                print('main(): med.get_state() = ', med.get_state())
+                #
+                # print('main(): media_list_player.get_state()', media_list_player.get_state())
+                # print('main(): media_list_player.is_playing()',media_list_player.is_playing())
+
+            # print('main() (if media_list_player.get_state() == vlc.State(6)): ',
+            #       media_list_player.get_state() == vlc.State(6))
+            # print('main(): med.get_mrl() = ', med.get_mrl())
+            # print('main(): med.get_state() = ', med.get_state())
+
+            print('main(): media_list_player.get_state()', media_list_player.get_state())
+            print('main(): media_list_player.is_playing()', media_list_player.is_playing())
 
             rec.Reset()
             stream.stop_stream()
