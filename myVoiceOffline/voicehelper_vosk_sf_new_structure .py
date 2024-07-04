@@ -70,6 +70,8 @@ def load_playlist(playlist_name: str):
             # list_for_tuple.append(os.path.abspath(line))
             playlist_list.append(line.rstrip())
 
+    # end_of_list.mp3 нужен, чтобы сообщить пользователю о конце плейлиста и чтобы
+    # не попасть в бесконечный цикл, когда не медиа файл последний в плейлисте (см. main() media_list_player.next())
     if len(playlist_list) > 0:
         if not os.path.isfile('end_of_list.mp3'):
             engine.save_to_file(word_user_name + '''это последний трек в плейлисте.
@@ -80,7 +82,6 @@ def load_playlist(playlist_name: str):
 
     print('load_playlist(): Конец составления списка', time.time())
     print('load_playlist(): playlist_list', playlist_list)
-    # playlist_list = list()
 
     return playlist_list
 
