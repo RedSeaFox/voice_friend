@@ -71,14 +71,19 @@ def load_playlist(playlist_name: str):
             playlist_list.append(line.rstrip())
 
     # end_of_list.mp3 нужен, чтобы сообщить пользователю о конце плейлиста и чтобы
-    # не попасть в бесконечный цикл, когда не медиа файл последний в плейлисте (см. main() media_list_player.next())
+    # не попасть в бесконечный цикл, когда "не медиа файл" последний в плейлисте (см. main() media_list_player.next())
     if len(playlist_list) > 0:
         if not os.path.isfile('end_of_list.mp3'):
-            engine.save_to_file(word_user_name + '''это последний трек в плейлисте.
-                                Ты можешь запустить плейлист с начала.
-                                Для этого обратись опять к другу''', 'test.mp3')
+            engine.save_to_file(word_user_name + ', это последний трек в плейлисте', 'end_of_list.mp3')
             engine.runAndWait()
-            playlist_list.append('test.mp3')
+
+        playlist_list.append('end_of_list.mp3')
+
+        if not os.path.isfile('start_of_list.mp3'):
+            engine.save_to_file(word_user_name + ', это начало плейлиста.', 'start_of_list.mp3')
+            engine.runAndWait()
+
+        playlist_list.insert(0,'start_of_list.mp3')
 
     print('load_playlist(): Конец составления списка', time.time())
     print('load_playlist(): playlist_list', playlist_list)
@@ -165,10 +170,51 @@ def listen_to_user():
     return result_text
 
 
+def play_next():
+    media_list_player.next()
+
+
+def play_previous():
+    res_step = media_list_player.previous()
+    time.sleep(0.5)
+    print('play_previous(): шагнули назад в начале процедуры')
+    print('play_previous(): res_step:', res_step)
+
+    media_player = media_list_player.get_media_player()
+
+    stepping = True
+
+    while stepping:
+        # pass
+    #     # Если воспроизведение еще не началось, то это не медиа файл => переходим еще раз вверх
+        if media_player.get_position() == 0:
+            media_list_player.previous()
+            time.sleep(0.5)
+            print('play_previous(): шагнули назад в начале процедуры')
+        else:
+            stepping = False
+
+    # while stepping:
+    #     if media_list_player.get_state() == vlc.State(6):
+    #         media_player = media_list_player.get_media_player()
+    #
+    #         # Если воспроизведение еще не началось, то это не медиа файл
+    #         if media_player.get_position() == 0:
+    #             media_list_player.previous()
+    #     else:
+    #         stepping = False
+    #         media_list_player.previous()
+
+
+
 def look_for_short_command(set_commands):
     print('look_for_short_command(): set_commands: ', set_commands),
     set_play = {'играй', 'играть', 'пой', 'петь'}
     set_seek = {'найди', 'ищи', 'поиск', 'найти'}
+    set_next = {'следующий', 'следующие', 'следующее', 'следующая', 'следующую', 'следующей'}
+    set_previous = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
+    set_forward = {'вперед'} # здесь будет указание количества треков или секунд/минут
+    set_back = {'вперед'} # здесь будет указание количества треков или секунд/минут
 
     # Ищем и выполняем короткую команду
 
@@ -184,6 +230,16 @@ def look_for_short_command(set_commands):
         set_commands -= set_seek
         print('look_for_short_command(): Ищу')
         say_text(word_user_name + ', ищу ' + ' '.join(set_commands))
+    elif not set_commands.isdisjoint(set_next):
+        set_commands -= set_seek
+        print('look_for_short_command(): следующий')
+        say_text(word_user_name + ', перехожу к следующему треку ' )
+        play_next()
+    elif not set_commands.isdisjoint(set_previous):
+        set_commands -= set_seek
+        print('look_for_short_command(): предыдущий')
+        say_text(word_user_name + ', перехожу к предыдущему треку ' )
+        play_previous()
     else:
         # ни одна из коротких команд (играй, найди, назад, вперед, время и проч) не найдена =>
         # значит ждем когда пользователь опять обратится к другу
@@ -227,7 +283,8 @@ def main():
 
             result_text = rec.PartialResult()
 
-            print('main(): result_text :', result_text.replace("\n", ""), end='\n\n')
+            print('\n\n')
+            print('main(): result_text :', result_text.replace("\n", ""), end='\n')
 
             print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
             print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
