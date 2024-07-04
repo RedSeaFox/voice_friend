@@ -17,7 +17,7 @@ import vlc
 CHANNELS = 1  # моно
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
-FORMAT = pyaudio.paInt16 # глубина звука = 16 бит = 2 байта
+FORMAT = pyaudio.paInt16  # глубина звука = 16 бит = 2 байта
 model = Model("model")
 
 word_friend = 'друг'
@@ -46,13 +46,14 @@ def load_playlist(playlist_name: str):
     print('load_playlist() : Начало составления списка', time.time())
 
     try:
-        playlist_m3u = open('my_playlist.m3u', encoding='utf-8')
-        # playlist_m3u = open('my_playlist разные тесты.m3u', encoding='utf-8')
-        # playlist_m3u = open('8941.m3u')
+        # playlist_m3u = open('my_playlist.m3u', encoding='utf-8')
+        playlist_m3u = open(playlist_name, encoding='utf-8')
         playlist_list_from_m3u = playlist_m3u.readlines()
+
     except FileNotFoundError:
         say_text('load_playlist: Плейлист не найден. Воспроизведение не возможно')
         return playlist_list
+
     except Exception:
         say_text('load_playlist: Плейлист не загружен. Неизвестная ошибка. Обратитесь к разработчику')
         return playlist_list
@@ -68,6 +69,14 @@ def load_playlist(playlist_name: str):
         elif line[0:6] == 'https:':
             # list_for_tuple.append(os.path.abspath(line))
             playlist_list.append(line.rstrip())
+
+    if len(playlist_list) > 0:
+        if not os.path.isfile('end_of_list.mp3'):
+            engine.save_to_file(word_user_name + '''это последний трек в плейлисте.
+                                Ты можешь запустить плейлист с начала.
+                                Для этого обратись опять к другу''', 'test.mp3')
+            engine.runAndWait()
+            playlist_list.append('test.mp3')
 
     print('load_playlist(): Конец составления списка', time.time())
     print('load_playlist(): playlist_list', playlist_list)
@@ -86,6 +95,8 @@ def play_vlc():
         # Плейлист из файла загружаем в список (список, а не кортеж, т.к. планируется добавление в плейлист)
         # Пока загружается только плейлист из файла с названием my_playlist.m3u
         playlist_list = load_playlist('my_playlist.m3u')
+        # playlist_list = load_playlist('my_playlist разные тесты.m3u')
+        # playlist_list = load_playlist('8941.m3u')
 
         if len(playlist_list) == 0:
             say_text('play_vlc(): Плейлист пустой')
