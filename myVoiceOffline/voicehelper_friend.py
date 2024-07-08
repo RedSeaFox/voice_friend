@@ -7,7 +7,8 @@ import time
 # https://people.csail.mit.edu/hubert/pyaudio/
 import pyaudio
 # Для распознавания речи используем vosk - автономный API распознавания речи
-from vosk import Model, KaldiRecognizer
+# from vosk import Model, KaldiRecognizer
+from vosk import KaldiRecognizer
 # Для преобразования текста в речь (для ответов друга) используем pyttsx3
 import pyttsx3
 # Для воспроизведения аудио файлов будем использовать vlc
@@ -20,12 +21,6 @@ CHANNELS = 1  # моно
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
 FORMAT = pyaudio.paInt16  # глубина звука = 16 бит = 2 байта
-# model = Model("model")
-model = Model("model_ru")
-
-# word_friend = 'друг'
-# word_hello = ', скажи твою команду.'
-word_user_name = 'Люся'
 
 engine = pyttsx3.init()
 
@@ -35,11 +30,10 @@ engine = pyttsx3.init()
 py_audio = pyaudio.PyAudio()
 # Открываем поток для чтения (input=True) данных с микрофона по-умолчанию и задаем параметры
 stream = py_audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
-rec = KaldiRecognizer(model, 16000)
+rec = KaldiRecognizer(word.MODEL_VOSK, 16000)
 
 # Большинство команд к другу касаются плеера, поэтому он должен быть всегда доступен
 vlc_instance = vlc.Instance()
-# media_list_player = vlc.MediaListPlayer()
 media_list_player = vlc_instance.media_list_player_new()
 
 
@@ -49,41 +43,39 @@ def load_playlist(playlist_name: str):
     print('load_playlist() : Начало составления списка', time.time())
 
     try:
-        # playlist_m3u = open('my_playlist.m3u', encoding='utf-8')
         playlist_m3u = open(playlist_name, encoding='utf-8')
         playlist_list_from_m3u = playlist_m3u.readlines()
 
     except FileNotFoundError:
-        say_text('Плейлист не найден. Воспроизведение не возможно')
+        say_text(word.PLAYLIST_NOT_FOUND)
         return playlist_list
 
     except Exception:
         say_text('load_playlist: Плейлист не загружен. Неизвестная ошибка. Обратитесь к разработчику')
+        say_text(word.PLAYLIST_EXCEPTION)
         return playlist_list
 
     for line in playlist_list_from_m3u:
         if line[0] == '#':
             continue
         elif line[0:5] == 'file:':
-            # playlist_list.append(os.path.abspath(line[8:]))
             media_path = os.path.abspath(line[8:].rstrip())
             if os.path.isfile(media_path):
                 playlist_list.append(media_path)
         elif line[0:6] == 'https:':
-            # list_for_tuple.append(os.path.abspath(line))
             playlist_list.append(line.rstrip())
 
     # end_of_list.mp3 нужен, чтобы сообщить пользователю о конце плейлиста и чтобы
     # не попасть в бесконечный цикл, когда "не медиа файл" последний в плейлисте (см. main() media_list_player.next())
     if len(playlist_list) > 0:
         if not os.path.isfile('end_of_list.mp3'):
-            engine.save_to_file(word_user_name + ', это последний трек в плейлисте', 'end_of_list.mp3')
+            engine.save_to_file(word.USER_NAME + word.PLAYLIST_END, 'end_of_list.mp3')
             engine.runAndWait()
 
         playlist_list.append('end_of_list.mp3')
 
         if not os.path.isfile('start_of_list.mp3'):
-            engine.save_to_file(word_user_name + ', это начало плейлиста.', 'start_of_list.mp3')
+            engine.save_to_file(word.USER_NAME + word.PLAYLIST_START, 'start_of_list.mp3')
             engine.runAndWait()
 
         playlist_list.insert(0,'start_of_list.mp3')
@@ -108,10 +100,9 @@ def play_vlc():
         # playlist_list = load_playlist('8941.m3u')
 
         if len(playlist_list) == 0:
-            say_text('play_vlc(): Плейлист пустой')
+            say_text(word.PLAYLIST_EMPTY)
             return
 
-        # vlc_instance = media_list_player.get_instance()
         media_list = vlc_instance.media_list_new()
 
         for song in playlist_list:
@@ -120,8 +111,6 @@ def play_vlc():
         media_list_player.set_media_list(media_list)
 
         media_list_player.play()
-
-        # time.sleep(0.1)
 
 
 def say_text(text):
@@ -197,131 +186,52 @@ def play_previous():
         else:
             stepping = False
 
-    # while stepping:
-    #     if media_list_player.get_state() == vlc.State(6):
-    #         media_player = media_list_player.get_media_player()
-    #
-    #         # Если воспроизведение еще не началось, то это не медиа файл
-    #         if media_player.get_position() == 0:
-    #             media_list_player.previous()
-    #     else:
-    #         stepping = False
-    #         media_list_player.previous()
-
-
-
-def look_for_short_command(set_commands):
-    print('look_for_short_command(): set_commands: ', set_commands),
-    set_play = {'играй', 'играть', 'пой', 'петь'}
-    set_search = {'найди', 'ищи', 'поиск', 'найти'}
-    set_next = {'следующий', 'следующие', 'следующее', 'следующая', 'следующую', 'следующей'}
-    set_previous = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
-    set_forward = {'вперед'} # здесь будет указание количества треков или секунд/минут
-    set_back = {'назад'} # здесь будет указание количества треков или секунд/минут
-
-    # Ищем и выполняем короткую команду
-
-    # Если в словах пользователя не было ничего или было только слово друг
-    if not set_commands:
-        say_text(word_user_name + ', я не услышал команду. Обратись опять к другу')
-        print('look_for_short_command(): я не услышал команду. Обратись опять к другу')
-    elif not set_commands.isdisjoint(set_play):
-        print('look_for_short_command(): Включаю плеер')
-        say_text(word_user_name + ', включаю плеер')
-        play_vlc()
-    elif not set_commands.isdisjoint(set_search):
-        set_commands -= set_search
-        print('look_for_short_command(): Ищу')
-        say_text(word_user_name + ', ищу ' + ' '.join(set_commands))
-    elif not set_commands.isdisjoint(set_next):
-        set_commands -= set_next
-        print('look_for_short_command(): следующий')
-        say_text(word_user_name + ', перехожу к следующему треку ' )
-        play_next()
-    elif not set_commands.isdisjoint(set_previous):
-        set_commands -= set_previous
-        print('look_for_short_command(): предыдущий')
-        say_text(word_user_name + ', перехожу к предыдущему треку ' )
-        play_previous()
-    else:
-        # ни одна из коротких команд (играй, найди, назад, вперед, время и проч) не найдена =>
-        # значит ждем когда пользователь опять обратится к другу
-        say_text(word_user_name + ', я не смог распознать команду. Обратись опять к другу')
-        print('look_for_short_command(): я не смог распознать команду. Обратись опять к другу')
 
 def search_commands_to_execute(set_commands):
-    set_play = {'играй', 'играть', 'пой', 'петь'}
-    set_search = {'найди', 'ищи', 'поиск', 'найти'}
-    set_next = {'следующий', 'следующие', 'следующее', 'следующая', 'следующую', 'следующей'}
-    set_previous = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
-    set_forward = {'вперед'}  # здесь будет указание количества треков или секунд/минут
-    set_back = {'назад'}  # здесь будет указание количества треков или секунд/минут
-
-    all_commands = {'play': set_play,
-                    'search': set_search,
-                    'next': set_next,
-                    'previous': set_previous,
-                    'forward': set_forward,
-                    'back': set_back}
-
-    set_all_commands = set_play | set_search | set_next | set_previous | set_forward | set_back
     print('search_commands_to_execute(): set_commands: ', set_commands )
-    print('search_commands_to_execute(): set_all_commands: ', set_all_commands )
+    print('search_commands_to_execute(): set_all_commands: ', word.SET_ALL_COMMANDS )
 
-    commands_to_execute = set_commands & set_all_commands
+    commands_to_execute = set_commands & word.SET_ALL_COMMANDS
 
     return commands_to_execute
 
     print('search_commands_to_execute(): commands_to_execute: ', commands_to_execute )
 
 def execute_command(commands_to_execute):
-    set_play = {'играй', 'играть', 'пой', 'петь'}
-    set_search = {'найди', 'ищи', 'поиск', 'найти'}
-    set_next = {'следующий', 'следующие', 'следующее', 'следующая', 'следующую', 'следующей'}
-    set_previous = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
-    set_forward = {'вперёд', 'вперед'}  # здесь будет указание количества треков или секунд/минут
-    set_back = {'назад'}  # здесь будет указание количества треков или секунд/минут
-
     if not commands_to_execute:
-        say_text(word_user_name + ', я не услышал команду. Обратись опять к другу')
-        print('execute_command(): я не услышал команду. Обратись опять к другу')
-    elif not commands_to_execute.isdisjoint(set_play):
+        say_text(word.USER_NAME + word.NO_COMMAND)
+        print('execute_command():', word.NO_COMMAND)
+    elif not commands_to_execute.isdisjoint(word.SET_PLAY):
         print('execute_command(): Включаю плеер')
-        say_text(word_user_name + ', включаю плеер')
+        say_text(word.USER_NAME + word.PLAYER_START)
         play_vlc()
-    elif not commands_to_execute.isdisjoint(set_next):
-        commands_to_execute -= set_next
+    elif not commands_to_execute.isdisjoint(word.SET_NEXT):
+        commands_to_execute -= word.SET_NEXT
         print('execute_command(): следующий')
-        say_text(word_user_name + ', перехожу к следующему треку ')
+        say_text(word.USER_NAME + word.PLAYER_NEXT)
         play_next()
-    elif not commands_to_execute.isdisjoint(set_previous):
-        commands_to_execute -= set_previous
+    elif not commands_to_execute.isdisjoint(word.SET_PREVIOUS):
+        commands_to_execute -= word.SET_PREVIOUS
         print('execute_command(): предыдущий')
-        say_text(word_user_name + ', перехожу к предыдущему треку ')
+        say_text(word.USER_NAME + word.PLAYER_PREVIOUS)
         play_previous()
-    elif not commands_to_execute.isdisjoint(set_forward):
-        commands_to_execute -= set_forward
+    elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
+        commands_to_execute -= word.SET_FORWARD
         print('execute_command(): вперед')
-        say_text(word_user_name + ''', команда вперед. Пока эта команда не работает. 
-                Но в будущем эта команда позволит переходить на несколько треков вперед и передвигаться внутри трека ''')
-    elif not commands_to_execute.isdisjoint(set_back):
-        commands_to_execute -= set_back
+        say_text(word.USER_NAME + word.PLAYER_FORWARD)
+    elif not commands_to_execute.isdisjoint(word.SET_BACK):
+        commands_to_execute -= word.SET_BACK
         print('execute_command(): назад')
-        say_text(word_user_name + ''', команда назад. Пока эта команда не работает. 
-                Но в будущем эта команда позволит переходить на несколько треков назад и передвигаться внутри трека ''')
-    elif not commands_to_execute.isdisjoint(set_search):
-        commands_to_execute -= set_search
+        say_text(word.USER_NAME + word.PLAYER_BACK)
+    elif not commands_to_execute.isdisjoint(word.SET_SEARCH):
+        commands_to_execute -= word.SET_SEARCH
         print('execute_command(): Ищу')
-        say_text(word_user_name + ', ищу ' + ' '.join(commands_to_execute))
+        say_text(word.USER_NAME + word.PLAYER_SEARCH + ' '.join(commands_to_execute))
     else:
-        say_text(word_user_name + ''', что-то пошло не так. Попробуй обратиться опять к другу. 
-                            По возможности сообщи разработчику морской лисе об этой ситуации''' )
-        print('''execute_command(): , что-то пошло не так. Попробуй обратиться опять к другу. 
-                            По возможности сообщи разработчику морской лисе об этой ситуации''' )
-
+        say_text(word.USER_NAME + word.EXCEPT)
+        print('execute_command(): ', word.EXCEPT)
 
 def process_text_main(set_commands):
-    # set_commands -= {word_friend}
     set_commands -= {word.FRIEND}
     print('process_text_main(): set_commands без слова друг:', set_commands)
 
@@ -331,34 +241,27 @@ def process_text_main(set_commands):
 
     # Если во множестве нет других слов (множество пустое), значит надо запросить команды
     if not commands_to_execute:
-        # say_text(word_user_name + word_hello)
-        say_text(word_user_name + word.SAY_COMMAND)
+        say_text(word.USER_NAME + word.SAY_COMMAND)
         # Останавливаем поток, чтобы не попал шум (например речь друга) в речь пользователя
         stream.stop_stream()
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
         print('process_text_main(): commands_to_execute пустое')
-        # print('process_text_main():  ', word_user_name, word_hello)
         print('process_text_main():  ', word.USER_NAME, word.SAY_COMMAND)
         result_text = listen_to_user()
         print('process_text_main(): result_text', result_text.replace("\n", ""))
         set_commands = commands_to_set(result_text)
-        # set_commands -= {word_friend}
         set_commands -= {word.FRIEND}
         # Проверяем, есть ли в словах пользователя команды для выполнения
         commands_to_execute = search_commands_to_execute(set_commands)
 
     execute_command(commands_to_execute)
 
-    # look_for_short_command(set_commands)
-
-
 
 def main():
     record_seconds = 2
 
-    # say_text('Программа запущена')
     say_text(word.PROGRAM_IS_RUNNING)
 
     try:
@@ -376,12 +279,10 @@ def main():
             print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
             print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
 
-            # if word_friend in result_text:
             if word.FRIEND in result_text:
                 # В строке "друг" может быть в словах "вдруг", "другой" и проч.
                 # Поэтому далее проверяем на точное соответствие слову друг
                 set_commands = commands_to_set(result_text)
-                # if word_friend in set_commands:
                 if word.FRIEND in set_commands:
                     # Как только услышали слово друг, останавливаем плеер, если он включен
                     if media_list_player.is_playing():
@@ -419,11 +320,6 @@ def main():
                 #
                 # print('main(): media_list_player.get_state()', media_list_player.get_state())
                 # print('main(): media_list_player.is_playing()',media_list_player.is_playing())
-
-            # print('main() (if media_list_player.get_state() == vlc.State(6)): ',
-            #       media_list_player.get_state() == vlc.State(6))
-            # print('main(): med.get_mrl() = ', med.get_mrl())
-            # print('main(): med.get_state() = ', med.get_state())
 
             print('main(): media_list_player.get_state()', media_list_player.get_state())
             print('main(): media_list_player.is_playing()', media_list_player.is_playing())
