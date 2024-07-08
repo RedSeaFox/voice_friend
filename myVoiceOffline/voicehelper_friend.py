@@ -13,15 +13,18 @@ import pyttsx3
 # Для воспроизведения аудио файлов будем использовать vlc
 import vlc
 
+import voicehelper_friend_config as word
+
 
 CHANNELS = 1  # моно
 RATE = 16000  # частота дискретизации - кол-во фреймов в секунду
 CHUNK = 8000  # кол-во фреймов за один "запрос" к микрофону - тк читаем по кусочкам
 FORMAT = pyaudio.paInt16  # глубина звука = 16 бит = 2 байта
-model = Model("model")
+# model = Model("model")
+model = Model("model_ru")
 
-word_friend = 'друг'
-word_hello = ', скажи твою команду.'
+# word_friend = 'друг'
+# word_hello = ', скажи твою команду.'
 word_user_name = 'Люся'
 
 engine = pyttsx3.init()
@@ -51,7 +54,7 @@ def load_playlist(playlist_name: str):
         playlist_list_from_m3u = playlist_m3u.readlines()
 
     except FileNotFoundError:
-        say_text('load_playlist: Плейлист не найден. Воспроизведение не возможно')
+        say_text('Плейлист не найден. Воспроизведение не возможно')
         return playlist_list
 
     except Exception:
@@ -318,7 +321,8 @@ def execute_command(commands_to_execute):
 
 
 def process_text_main(set_commands):
-    set_commands -= {word_friend}
+    # set_commands -= {word_friend}
+    set_commands -= {word.FRIEND}
     print('process_text_main(): set_commands без слова друг:', set_commands)
 
     # Проверяем, есть ли в словах пользователя команды для выполнения
@@ -327,18 +331,21 @@ def process_text_main(set_commands):
 
     # Если во множестве нет других слов (множество пустое), значит надо запросить команды
     if not commands_to_execute:
-        say_text(word_user_name + word_hello)
+        # say_text(word_user_name + word_hello)
+        say_text(word_user_name + word.SAY_COMMAND)
         # Останавливаем поток, чтобы не попал шум (например речь друга) в речь пользователя
         stream.stop_stream()
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
         print('process_text_main(): commands_to_execute пустое')
-        print('process_text_main():  ', word_user_name, word_hello)
+        # print('process_text_main():  ', word_user_name, word_hello)
+        print('process_text_main():  ', word.USER_NAME, word.SAY_COMMAND)
         result_text = listen_to_user()
         print('process_text_main(): result_text', result_text.replace("\n", ""))
         set_commands = commands_to_set(result_text)
-        set_commands -= {word_friend}
+        # set_commands -= {word_friend}
+        set_commands -= {word.FRIEND}
         # Проверяем, есть ли в словах пользователя команды для выполнения
         commands_to_execute = search_commands_to_execute(set_commands)
 
@@ -351,7 +358,8 @@ def process_text_main(set_commands):
 def main():
     record_seconds = 2
 
-    say_text('Программа запущена')
+    # say_text('Программа запущена')
+    say_text(word.PROGRAM_IS_RUNNING)
 
     try:
         listen = True
@@ -368,11 +376,13 @@ def main():
             print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
             print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
 
-            if word_friend in result_text:
+            # if word_friend in result_text:
+            if word.FRIEND in result_text:
                 # В строке "друг" может быть в словах "вдруг", "другой" и проч.
                 # Поэтому далее проверяем на точное соответствие слову друг
                 set_commands = commands_to_set(result_text)
-                if word_friend in set_commands:
+                # if word_friend in set_commands:
+                if word.FRIEND in set_commands:
                     # Как только услышали слово друг, останавливаем плеер, если он включен
                     if media_list_player.is_playing():
                         media_list_player.pause()
