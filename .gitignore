@@ -6,3 +6,9 @@ venv/
  *копия*
 *_templ_*
 *orig_*
+хBak/
+*.mp3
+*.m3u
+*.wav
+*.jpg
+*.txt
