@@ -1,8 +1,18 @@
 .venv
 venv/
 **/.idea/
+*/__pycache__*
 **/test/
+**/example/
 **/temp/
- *копия*
+хBak
 *_templ_*
 *orig_*
+*.txt*
+*.m3u*
+*.mp3*
+*.wav*
+*.jpg*
+*копия*
+*.docx*
+*test*
