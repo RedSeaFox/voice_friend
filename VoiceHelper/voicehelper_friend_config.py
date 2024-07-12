@@ -23,7 +23,9 @@ USER_NAME = 'Люся'
 По умолчанию имя пользователя Люся
 """
 
+# LANGUAGE = 'ru'
 LANGUAGE = 'en'
+# USER_NAME = 'Люся'
 USER_NAME = 'Lucy'
 
 """ Settings area for advanced users (en)
