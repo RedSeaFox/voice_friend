@@ -40,7 +40,7 @@ media_list_player = vlc_instance.media_list_player_new()
 def load_playlist(playlist_name: str):
     playlist_list = list()
 
-    print('load_playlist() : Начало составления списка', time.time())
+    # print('load_playlist() : Начало составления списка', time.time())
 
     try:
         playlist_m3u = open(playlist_name, encoding='utf-8')
@@ -68,20 +68,26 @@ def load_playlist(playlist_name: str):
     # end_of_list.mp3 нужен, чтобы сообщить пользователю о конце плейлиста и чтобы
     # не попасть в бесконечный цикл, когда "не медиа файл" последний в плейлисте (см. main() media_list_player.next())
     if len(playlist_list) > 0:
-        if not os.path.isfile('end_of_list.mp3'):
-            engine.save_to_file(word.USER_NAME + word.PLAYLIST_END, 'end_of_list.mp3')
+        # if not os.path.isfile('end_of_list.mp3'):
+        if not os.path.isfile(word.END_OF_LIST):
+            # engine.save_to_file(word.USER_NAME + word.PLAYLIST_END, 'end_of_list.mp3')
+            engine.save_to_file(word.USER_NAME + word.PLAYLIST_END, word.END_OF_LIST)
             engine.runAndWait()
 
-        playlist_list.append('end_of_list.mp3')
+        # playlist_list.append('end_of_list.mp3')
+        playlist_list.append( word.END_OF_LIST)
 
-        if not os.path.isfile('start_of_list.mp3'):
-            engine.save_to_file(word.USER_NAME + word.PLAYLIST_START, 'start_of_list.mp3')
+        # if not os.path.isfile('start_of_list.mp3'):
+        if not os.path.isfile(word.START_OF_LIST):
+            # engine.save_to_file(word.USER_NAME + word.PLAYLIST_START, 'start_of_list.mp3')
+            engine.save_to_file(word.USER_NAME + word.PLAYLIST_START, word.START_OF_LIST)
             engine.runAndWait()
 
-        playlist_list.insert(0,'start_of_list.mp3')
+        # playlist_list.insert(0,'start_of_list.mp3')
+        playlist_list.insert(0,word.START_OF_LIST)
 
-    print('load_playlist(): Конец составления списка', time.time())
-    print('load_playlist(): playlist_list', playlist_list)
+    # print('load_playlist(): Конец составления списка', time.time())
+    # print('load_playlist(): playlist_list', playlist_list)
 
     return playlist_list
 
@@ -233,11 +239,12 @@ def execute_command(commands_to_execute):
 
 def process_text_main(set_commands):
     set_commands -= {word.FRIEND}
-    print('process_text_main(): set_commands без слова друг:', set_commands)
+    # print('process_text_main(): set_commands без слова друг:', set_commands)
+    print('process_text_main(): set_commands without the word friend:', set_commands)
 
     # Проверяем, есть ли в словах пользователя команды для выполнения
     commands_to_execute = search_commands_to_execute(set_commands)
-    print('process_text_main(): commands_to_execute :', commands_to_execute)
+    # print('process_text_main(): commands_to_execute :', commands_to_execute)
 
     # Если во множестве нет других слов (множество пустое), значит надо запросить команды
     if not commands_to_execute:
@@ -247,7 +254,7 @@ def process_text_main(set_commands):
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
-        print('process_text_main(): commands_to_execute пустое')
+        print('process_text_main(): commands_to_execute is empty')
         print('process_text_main():  ', word.USER_NAME, word.SAY_COMMAND)
         result_text = listen_to_user()
         print('process_text_main(): result_text', result_text.replace("\n", ""))
@@ -277,7 +284,7 @@ def main():
             print('main(): result_text :', result_text.replace("\n", ""), end='\n')
 
             print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
-            print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
+            # print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
 
             if word.FRIEND in result_text:
                 # В строке "друг" может быть в словах "вдруг", "другой" и проч.
@@ -288,11 +295,12 @@ def main():
                     if media_list_player.is_playing():
                         media_list_player.pause()
 
-                    print('main(): обнаружено слово друг', ', set_commands=', set_commands, ', запускаем process_text_main')
+                    # print('main(): обнаружено слово друг. set_commands=', set_commands, '. Запускаем process_text_main')
+                    print('main(): The word friend has been discovered. set_commands=', set_commands, ', Running process_text_main')
                     process_text_main(set_commands)
 
             print('main() after search friend: media_list_player.get_state(): ', media_list_player.get_state())
-            print('main(): after search friend media_list_player.is_playing(): ', media_list_player.is_playing())
+            # print('main(): after search friend media_list_player.is_playing(): ', media_list_player.is_playing())
 
             # vlc.State(6) может быть или если список закончился или если файл не воспроизводится (не медиа формат)
             if media_list_player.get_state() == vlc.State(6):
@@ -322,7 +330,7 @@ def main():
                 # print('main(): media_list_player.is_playing()',media_list_player.is_playing())
 
             print('main(): media_list_player.get_state()', media_list_player.get_state())
-            print('main(): media_list_player.is_playing()', media_list_player.is_playing())
+            # print('main(): media_list_player.is_playing()', media_list_player.is_playing())
 
             rec.Reset()
             stream.stop_stream()
