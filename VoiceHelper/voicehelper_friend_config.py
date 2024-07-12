@@ -1,20 +1,81 @@
-# **********   Область настраивается пользователем   ***********
-# Здесь надо выбрать язык на котором будет работать программа (в настоящий момент только русский и английский).
-# По умолчанию установлен русский язык
-# Для русского:
-# LANGUAGE = 'ru'
-# Для английского:
-# LANGUAGE = 'en'
-LANGUAGE = 'ru'
-# Ввести имя пользователя который будет работать с программой. По умолчанию имя пользователя Люся
-USER_NAME = 'Люся'
+""" Setting up the program. (en)
 
-# ***********    Область настроек для опытных пользователей    ******************
+This area is user-configurable.
+Here you need to select the language in which the program will work (currently only Russian and English).
+For Russian: LANGUAGE = 'ru'
+For English: LANGUAGE = 'en'
+The default language is Russian
+
+Enter the name of the user who will work with the program.
+USER_NAME = 'Lucy'
+The default username is Lucy.
+
+Настройка программы. (ru)
+
+Эта область настраивается пользователем.
+Здесь надо выбрать язык на котором будет работать программа (в настоящий момент только русский и английский).
+Для русского: LANGUAGE = 'ru'
+Для английского: LANGUAGE = 'en'
+По умолчанию установлен русский язык
+
+Ввести имя пользователя который будет работать с программой.
+USER_NAME = 'Люся'
+По умолчанию имя пользователя Люся
+"""
+
+LANGUAGE = 'en'
+USER_NAME = 'Lucy'
+
+""" Settings area for advanced users (en)
+
+You can add another language here if you add another elif block LANGUAGE == 'new language' 
+and specify it in the line LANGUAGE = ''
+
+Область настроек для опытных пользователей (ru) 
+
+Здесь можно добавить еще один язык, если добавить еще один блок elif LANGUAGE == 'new language'
+и указать его в строке LANGUAGE = ''"""
+
 from vosk import Model
 
 if LANGUAGE == 'en':
-    pass
     MODEL_VOSK = Model("vosk_model_small_en")
+
+    FRIEND = 'friend'
+    SAY_COMMAND = ', tell me your command.'
+
+    PROGRAM_IS_RUNNING = 'The program is running'
+
+    PLAYLIST_NOT_FOUND = 'The playlist is not found. Playback is not possible'
+    PLAYLIST_EXCEPTION = 'The playlist is not loaded. Unknown error. Contact the developer'
+    PLAYLIST_END = ', this is the last track in the playlist'
+    PLAYLIST_START = ', this is the beginning of the playlist.'
+    PLAYLIST_EMPTY = 'The playlist is empty'
+
+    SET_PLAY = {'play', 'sing'}
+    SET_SEARCH = { 'search', 'find'}
+    SET_NEXT = {'next'}
+    SET_PREVIOUS = { 'previous'}
+    SET_FORWARD = {'forward'}  # here you will specify the number of tracks or seconds/minutes
+    SET_BACK = {'back'}  # here you will specify the number of tracks or seconds/minutes
+
+    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK
+
+    NO_COMMAND = ''', I haven't heard your command. Call for friend again.'''
+    PLAYER_START = 'The player is starting'
+    PLAYER_NEXT = ''', I'm moving on to the next track.'''
+    PLAYER_PREVIOUS = ''', I'm moving on to the previous track.'''
+    PLAYER_FORWARD = ''', This is a command forwards. 
+                    This command is not working yet.
+                    But in the future, this command will allow you to move forward several tracks 
+                    and move inside the track '''
+    PLAYER_BACK = ''', , This is a command back. 
+                    This command is not working yet.
+                    But in the future, this command will allow you to move back several tracks 
+                    and move inside the track  '''
+    PLAYER_SEARCH = ', SEARCH '
+    EXCEPT = ''', Something went wrong. Try call for friend again.. 
+                                    If possible, inform the developer RedSeaFox about this situation'''
 elif LANGUAGE == 'ru':
     MODEL_VOSK = Model("vosk_model_small_ru")
 
@@ -49,11 +110,3 @@ elif LANGUAGE == 'ru':
     PLAYER_SEARCH = ', ищу '
     EXCEPT =  ''', что-то пошло не так. Попробуй обратиться опять к другу. 
                                 По возможности сообщи разработчику морской лисе об этой ситуации'''
-
-    # all_commands = {'play': set_play,
-    #                 'search': set_search,
-    #                 'next': set_next,
-    #                 'previous': set_previous,
-    #                 'forward': set_forward,
-    #                 'back': set_back}
-
