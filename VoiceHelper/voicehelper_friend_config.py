@@ -43,7 +43,8 @@ from vosk import Model
 if LANGUAGE == 'en':
     MODEL_VOSK = Model("vosk_model_small_en")
 
-    FRIEND = 'friend'
+    # FRIEND = 'friend'
+    FRIEND = 'hello'
     SAY_COMMAND = ', tell me your command.'
 
     PROGRAM_IS_RUNNING = 'The program is running'
@@ -78,6 +79,7 @@ if LANGUAGE == 'en':
     PLAYER_SEARCH = ', SEARCH '
     EXCEPT = ''', Something went wrong. Try call for friend again.. 
                                     If possible, inform the developer RedSeaFox about this situation'''
+
 elif LANGUAGE == 'ru':
     MODEL_VOSK = Model("vosk_model_small_ru")
 
@@ -96,7 +98,7 @@ elif LANGUAGE == 'ru':
     SET_SEARCH = {'найди', 'ищи', 'поиск', 'найти'}
     SET_NEXT = {'следующий', 'следующие', 'следующее', 'следующая', 'следующую', 'следующей'}
     SET_PREVIOUS = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
-    SET_FORWARD = {'вперед'}  # здесь будет указание количества треков или секунд/минут
+    SET_FORWARD = {'вперед', 'вперёд'}  # здесь будет указание количества треков или секунд/минут
     SET_BACK = {'назад'}  # здесь будет указание количества треков или секунд/минут
 
     SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK
@@ -112,3 +114,7 @@ elif LANGUAGE == 'ru':
     PLAYER_SEARCH = ', ищу '
     EXCEPT =  ''', что-то пошло не так. Попробуй обратиться опять к другу. 
                                 По возможности сообщи разработчику морской лисе об этой ситуации'''
+
+
+START_OF_LIST = 'start_of_list_' + LANGUAGE + '.mp3'
+END_OF_LIST = 'end_of_list_' + LANGUAGE + '.mp3'
