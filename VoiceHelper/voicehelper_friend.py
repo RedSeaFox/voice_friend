@@ -202,30 +202,30 @@ def execute_command(commands_to_execute):
         say_text(word.USER_NAME + word.NO_COMMAND)
         print('execute_command():', word.NO_COMMAND)
     elif not commands_to_execute.isdisjoint(word.SET_PLAY):
-        print('execute_command(): Включаю плеер')
+        print('execute_command(): ', word.PLAYER_START)
         say_text(word.USER_NAME + word.PLAYER_START)
         play_vlc()
     elif not commands_to_execute.isdisjoint(word.SET_NEXT):
         commands_to_execute -= word.SET_NEXT
-        print('execute_command(): следующий')
+        print('execute_command(): ',  word.PLAYER_NEXT)
         say_text(word.USER_NAME + word.PLAYER_NEXT)
         play_next()
     elif not commands_to_execute.isdisjoint(word.SET_PREVIOUS):
         commands_to_execute -= word.SET_PREVIOUS
-        print('execute_command(): предыдущий')
+        print('execute_command(): ', word.PLAYER_PREVIOUS)
         say_text(word.USER_NAME + word.PLAYER_PREVIOUS)
         play_previous()
     elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
         commands_to_execute -= word.SET_FORWARD
-        print('execute_command(): вперед')
+        print('execute_command(): ', word.PLAYER_FORWARD)
         say_text(word.USER_NAME + word.PLAYER_FORWARD)
     elif not commands_to_execute.isdisjoint(word.SET_BACK):
         commands_to_execute -= word.SET_BACK
-        print('execute_command(): назад')
+        print('execute_command(): ', word.PLAYER_BACK)
         say_text(word.USER_NAME + word.PLAYER_BACK)
     elif not commands_to_execute.isdisjoint(word.SET_SEARCH):
         commands_to_execute -= word.SET_SEARCH
-        print('execute_command(): Ищу')
+        print('execute_command(): ', word.PLAYER_SEARCH)
         say_text(word.USER_NAME + word.PLAYER_SEARCH + ' '.join(commands_to_execute))
     else:
         say_text(word.USER_NAME + word.EXCEPT)
