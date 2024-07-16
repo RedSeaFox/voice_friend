@@ -7,7 +7,6 @@ import time
 # https://people.csail.mit.edu/hubert/pyaudio/
 import pyaudio
 # Для распознавания речи используем vosk - автономный API распознавания речи
-# from vosk import Model, KaldiRecognizer
 from vosk import KaldiRecognizer
 # Для преобразования текста в речь (для ответов друга) используем pyttsx3
 import pyttsx3
@@ -51,7 +50,6 @@ def load_playlist(playlist_name: str):
         return playlist_list
 
     except Exception:
-        say_text('load_playlist: Плейлист не загружен. Неизвестная ошибка. Обратитесь к разработчику')
         say_text(word.PLAYLIST_EXCEPTION)
         return playlist_list
 
@@ -64,26 +62,24 @@ def load_playlist(playlist_name: str):
                 playlist_list.append(media_path)
         elif line[0:6] == 'https:':
             playlist_list.append(line.rstrip())
+        else:
+            media_path = os.path.abspath(line.rstrip())
+            if os.path.isfile(media_path):
+                playlist_list.append(media_path)
 
     # end_of_list.mp3 нужен, чтобы сообщить пользователю о конце плейлиста и чтобы
     # не попасть в бесконечный цикл, когда "не медиа файл" последний в плейлисте (см. main() media_list_player.next())
     if len(playlist_list) > 0:
-        # if not os.path.isfile('end_of_list.mp3'):
         if not os.path.isfile(word.END_OF_LIST):
-            # engine.save_to_file(word.USER_NAME + word.PLAYLIST_END, 'end_of_list.mp3')
             engine.save_to_file(word.USER_NAME + word.PLAYLIST_END, word.END_OF_LIST)
             engine.runAndWait()
 
-        # playlist_list.append('end_of_list.mp3')
         playlist_list.append( word.END_OF_LIST)
 
-        # if not os.path.isfile('start_of_list.mp3'):
         if not os.path.isfile(word.START_OF_LIST):
-            # engine.save_to_file(word.USER_NAME + word.PLAYLIST_START, 'start_of_list.mp3')
             engine.save_to_file(word.USER_NAME + word.PLAYLIST_START, word.START_OF_LIST)
             engine.runAndWait()
 
-        # playlist_list.insert(0,'start_of_list.mp3')
         playlist_list.insert(0,word.START_OF_LIST)
 
     # print('load_playlist(): Конец составления списка', time.time())
@@ -102,8 +98,6 @@ def play_vlc():
         # Плейлист из файла загружаем в список (список, а не кортеж, т.к. планируется добавление в плейлист)
         # Пока загружается только плейлист из файла с названием my_playlist.m3u
         playlist_list = load_playlist('my_playlist.m3u')
-        # playlist_list = load_playlist('my_playlist разные тесты.m3u')
-        # playlist_list = load_playlist('8941.m3u')
 
         if len(playlist_list) == 0:
             say_text(word.PLAYLIST_EMPTY)
@@ -183,8 +177,7 @@ def play_previous():
     stepping = True
 
     while stepping:
-        # pass
-    #     # Если воспроизведение еще не началось, то это не медиа файл => переходим еще раз вверх
+        # Если воспроизведение еще не началось, то это не медиа файл => переходим еще раз вверх
         if media_player.get_position() == 0:
             media_list_player.previous()
             time.sleep(0.5)
@@ -233,6 +226,11 @@ def execute_command(commands_to_execute):
         commands_to_execute -= word.SET_SEARCH
         print('execute_command(): ', word.PLAYER_SEARCH)
         say_text(word.USER_NAME + word.PLAYER_SEARCH + ' '.join(commands_to_execute))
+    elif not commands_to_execute.isdisjoint(word.SET_BYE):
+        commands_to_execute -= word.SET_BYE
+        print('execute_command(): ', word.BYE)
+        say_text(word.USER_NAME + word.BYE)
+        bye()
     else:
         say_text(word.USER_NAME + word.EXCEPT)
         print('execute_command(): ', word.EXCEPT)
@@ -265,6 +263,12 @@ def process_text_main(set_commands):
 
     execute_command(commands_to_execute)
 
+
+def bye():
+    stream.stop_stream()
+    stream.close()
+    py_audio.terminate()
+    print('main: Программа закрыта')
 
 def main():
     record_seconds = 2
