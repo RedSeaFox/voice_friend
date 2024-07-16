@@ -74,7 +74,7 @@ Download lightweight libraries **vosk** `vosk-model-small-en-us-0.*` for managem
 
 Set up a virtual environment. Take the dependencies from the file `requirements.txt `.
 
-That is, the folder structure should be something like this:
+That is, the folder structure should be something like this:  
 ![file_structure](/image/file_structure.jpg)
 
 
