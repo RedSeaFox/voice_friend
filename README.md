@@ -58,7 +58,7 @@ The program is developed in Python 3.11
 The list of all modules and packages required for the correct operation of the program is contained in the file `requirements.txt `.
 
 
-The offline library **vosk** is used for speech recognition (https://alphacephei.com/vosk /) and its models (https://alphacephei.com/vosk/models ) *vosk-model-small-en-us-0.15* and *vosk-model-small-ru-0.22*.  
+The offline library [vosk](https://alphacephei.com/vosk/) is used for speech recognition  and its [models](https://alphacephei.com/vosk/models):  *vosk-model-small-en-us-0.15* and *vosk-model-small-ru-0.22*.  
 In the first release, the program works with Russian and English. You can add your own language.
 To do this, you need to:
 1. Download the lightweight language model  [from here](https://alphacephei.com/vosk/models ) and unpack it into the program folder
@@ -172,7 +172,7 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 Перечень всех модулей и пакетов, необходимых для корректной работы программы содержаться в файле `requirements.txt`.
 
 
-Для распознавания речи используется оффлайн-библиотека **vosk** (https://alphacephei.com/vosk/) и ее модели (https://alphacephei.com/vosk/models ) *vosk-model-small-en-us-0.15* и *vosk-model-small-ru-0.22*.  
+Для распознавания речи используется оффлайн-библиотека [vosk](https://alphacephei.com/vosk/) и ее малые (Lightweight) [модели](https://alphacephei.com/vosk/models ): *vosk-model-small-en-us-0.15* и *vosk-model-small-ru-0.22*.  
 В первом релизе программа работает с русским и английским языком. Вы можете добавить свой язык.
 Для этого надо:
 1. скачать малую языковую модель (Lightweight)  [отсюда](https://alphacephei.com/vosk/models) и распаковать ее в папку с программой
