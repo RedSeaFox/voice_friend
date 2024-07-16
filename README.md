@@ -70,7 +70,7 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 Настроить виртуальное окружение. Зависимости взять из файла `requirements.txt`.
 
 То есть структара паки должна быть примерно такая:
-![](https://github.com/RedSeaFox/voice_friend/blob/master/image/file_structure.jpg)
+![file_structure](https://github.com/RedSeaFox/voice_friend/tree/master/image/file_structure.jpg)
 
 
 В "VLC media player" создать плейлист с именем `my_playlist.m3u`.  
