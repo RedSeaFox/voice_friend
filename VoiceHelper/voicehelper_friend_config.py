@@ -23,10 +23,10 @@ USER_NAME = 'Люся'
 По умолчанию имя пользователя Люся
 """
 
-# LANGUAGE = 'ru'
-LANGUAGE = 'en'
-# USER_NAME = 'Люся'
-USER_NAME = 'Lucy'
+LANGUAGE = 'ru'
+USER_NAME = 'Люся'
+# LANGUAGE = 'en'
+# USER_NAME = 'Lucy'
 
 """ Settings area for advanced users (en)
 
@@ -43,8 +43,7 @@ from vosk import Model
 if LANGUAGE == 'en':
     MODEL_VOSK = Model("vosk_model_small_en")
 
-    # FRIEND = 'friend'
-    FRIEND = 'hello'
+    FRIEND = 'friend'
     SAY_COMMAND = ', tell me your command.'
 
     PROGRAM_IS_RUNNING = 'The program is running'
@@ -61,8 +60,9 @@ if LANGUAGE == 'en':
     SET_PREVIOUS = { 'previous'}
     SET_FORWARD = {'forward'}  # here you will specify the number of tracks or seconds/minutes
     SET_BACK = {'back'}  # here you will specify the number of tracks or seconds/minutes
+    SET_BYE = {'bye', 'goodbye', 'adieu'}
 
-    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK
+    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE
 
     NO_COMMAND = ''', I haven't heard your command. Call for friend again.'''
     PLAYER_START = 'The player is starting'
@@ -79,6 +79,7 @@ if LANGUAGE == 'en':
     PLAYER_SEARCH = ', SEARCH '
     EXCEPT = ''', Something went wrong. Try call for friend again.. 
                                     If possible, inform the developer RedSeaFox about this situation'''
+    BYE = '''Closing the program'''
 
 elif LANGUAGE == 'ru':
     MODEL_VOSK = Model("vosk_model_small_ru")
@@ -100,8 +101,9 @@ elif LANGUAGE == 'ru':
     SET_PREVIOUS = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
     SET_FORWARD = {'вперед', 'вперёд'}  # здесь будет указание количества треков или секунд/минут
     SET_BACK = {'назад'}  # здесь будет указание количества треков или секунд/минут
+    SET_BYE = {'пока', 'до свидания', 'прощай'}
 
-    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK
+    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE
 
     NO_COMMAND =  ', я не услышал команду. Обратись опять к другу'
     PLAYER_START = ', включаю плеер'
@@ -114,6 +116,7 @@ elif LANGUAGE == 'ru':
     PLAYER_SEARCH = ', ищу '
     EXCEPT =  ''', что-то пошло не так. Попробуй обратиться опять к другу. 
                                 По возможности сообщи разработчику морской лисе об этой ситуации'''
+    BYE = '''Закрываю программу'''
 
 
 START_OF_LIST = 'start_of_list_' + LANGUAGE + '.mp3'
