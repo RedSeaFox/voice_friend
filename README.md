@@ -82,10 +82,10 @@ In "VLC media player" create a playlist named `my_playlist.m3u`.
 The playlist must contain the full path to the media files, indicating the disk and folders.  
 Example: `file:///F:/MyMusic/Romeo_and_Juliet.mp3`. 
 
-For the Russian language in the module `voicehelper_friend_config.py ` specify the name of the user who will communicate with the program. The default name is Lucy:  
+For the Russian language in the module `voicehelper_friend_config.py ` specify the name of the user who will communicate with the program. The default name is Люся:  
 ```python
 LANGUAGE = 'ru'
-USER_NAME = 'Lucy'
+USER_NAME = 'Люся'
 ```
 For English in the module `voicehelper_friend_config.py ` specify the language `en" and the name of the user who will communicate with the program. For example, the name Lucy:  
 ```python
