@@ -70,7 +70,7 @@ Python 3.11 must be installed. Perhaps the program will work on other versions o
 
 Download and place files in a separate folder `voicehelper_friend.py ` and `voicehelper_friend_config.py `. 
 
-Download lightweight libraries **vosk** `vosk-model-small-en-us-0.*` for management in English and `vosk-model-small-ru-0.*` for management in Russian. The program was tested with the libraries `vosk-model-small-en-us-0.15` and `vosk-model-small-ru-0.22`. But the program should also work with other versions of lightweight  libraries. Libraries can be taken from this repository or from the developer's website https://alphacephei.com/vosk/models . Libraries should also be placed in the program folder.
+Download lightweight libraries **vosk** `vosk-model-small-en-us-0.*` for management in English and `vosk-model-small-ru-0.*` for management in Russian. The program was tested with the libraries `vosk-model-small-en-us-0.15` and `vosk-model-small-ru-0.22`. But the program should also work with other versions of lightweight  libraries. Libraries can be taken from this repository from folder [VoiceHelper](https://github.com/RedSeaFox/voice_friend/tree/master/VoiceHelper) or from the developer's website https://alphacephei.com/vosk/models . Libraries should also be placed in the program folder.
 
 Set up a virtual environment. Take the dependencies from the file `requirements.txt `.
 
@@ -182,9 +182,9 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 ### Инструкция по установке
 Должен быть установлен Python 3.11. Возможно прграмма будет работать и на других версиях Python 3. 
 
-Скачать и поместить в отдельную папку файлы `voicehelper_friend.py` и `voicehelper_friend_config.py`. 
+Скачать с репозитория из папки [VoiceHelper](https://github.com/RedSeaFox/voice_friend/tree/master/VoiceHelper) и поместить в отдельную папку файлы `voicehelper_friend.py` и `voicehelper_friend_config.py`. 
 
-Скачать малые (Lightweight) библиотеки **vosk** `vosk-model-small-en-us-0.*` для управления на английском языке и `vosk-model-small-ru-0.*` для управления на русском языке. Программа тестировалась с библиотеками `vosk-model-small-en-us-0.15` и `vosk-model-small-ru-0.22`. Но с другими версиями малых библиотек программа также должна работать. Библиотеки можно взять с этого репозитория или с сайта разработчика https://alphacephei.com/vosk/models. Библиотеки также надо поместить в папку с программой.
+Скачать малые (Lightweight) библиотеки **vosk** `vosk-model-small-en-us-0.*` для управления на английском языке и `vosk-model-small-ru-0.*` для управления на русском языке. Программа тестировалась с библиотеками `vosk-model-small-en-us-0.15` и `vosk-model-small-ru-0.22`. Но с другими версиями малых библиотек программа также должна работать. Библиотеки можно взять с этого репозитория из папки [VoiceHelper](https://github.com/RedSeaFox/voice_friend/tree/master/VoiceHelper) или с сайта разработчика https://alphacephei.com/vosk/models. Библиотеки надо поместить в папку с программой.
 
 Настроить виртуальное окружение. Зависимости взять из файла `requirements.txt`.
 
