@@ -17,7 +17,7 @@ To determine that the program is being accessed, there is a special word in the 
  FRIEND = 'friend'
 ```
 
-Russian is set by default in the program and, accordingly, the word-beacon is used by default in Russian (*"друг"*) and the username is also indicated in Russian (*"Люся"*). How to set the program up to work with English and other languages, see below
+Russian is set by default in the program and, accordingly, the word-beacon is used by default in Russian (*"друг"*) and the username is also indicated in Russian (*"Люся"*). How to set the program up to work with English and other languages, see below.
 
 Management is carried out according to two scenarios.
 
