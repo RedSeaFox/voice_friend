@@ -225,6 +225,7 @@ def forward(set_commands, result_text):
                 number = number * num.name_number[ww]
 
             print('forward(): thousand number:', number)
+            print('forward(): thousand:', thousand)
 
             is_thousand = True
             break
@@ -239,9 +240,8 @@ def forward(set_commands, result_text):
     for ww in number_residue:
         number = number + num.name_number[ww]
 
-
     print('forward(): number_in_result:', number_in_result)
-    print('forward(): thousand:', thousand)
+
     print('forward(): number_residue:', number_residue)
     print('forward(): number:', number)
 
