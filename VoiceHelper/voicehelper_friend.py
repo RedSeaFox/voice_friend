@@ -14,7 +14,7 @@ import pyttsx3
 import vlc
 
 import voicehelper_friend_config as word
-import name_of_numbers as num
+# import name_of_numbers as num
 
 
 CHANNELS = 1  # моно
@@ -196,55 +196,77 @@ def search_commands_to_execute(set_commands):
     print('search_commands_to_execute(): commands_to_execute: ', commands_to_execute )
 
 
-def forward(set_commands, result_text):
-    print('forward(): result_text = ', result_text)
+def get_number(set_commands, result_text):
 
-    set_number_in_result = set_commands & num.All_NAME_NUMBER
-    print('forward(): set_number_in_result:', set_number_in_result)
+    print('get_number(): result_text = ', result_text)
+
+    set_number_in_result = set_commands & word.All_NAME_NUMBER
+    print('get_number(): set_number_in_result:', set_number_in_result)
 
     if not set_number_in_result:
-        pass
+        return 0
 
     number_in_result = []
     is_thousand = False
     index_thousand = 0
+    is_hundred = False
     number = 0
 
     for w in result_text:
         if w in set_number_in_result:
             number_in_result.append(w)
 
-    for w in num.NAME_THOUSAND:
+    for w in word.NAME_THOUSAND:
         if w in number_in_result:
-            number = 1
+            number_thousand = 1
 
             index_thousand = number_in_result.index(w)
             thousand = number_in_result[:index_thousand + 1]
 
             for ww in thousand:
-                number = number * num.name_number[ww]
+                number_thousand = number_thousand * word.NAME_NUMBER_DICT[ww]
 
-            print('forward(): thousand number:', number)
-            print('forward(): thousand:', thousand)
+            print('get_number(): thousand number:', number_thousand)
+            print('get_number(): thousand:', thousand)
 
             is_thousand = True
             break
 
+    for w in word.NAME_HUNDRED:
+        if w in number_in_result:
+            number_hundred = 1
+
+            index_hundred = number_in_result.index(w)
+            hundred = number_in_result[index_thousand+1:index_hundred + 1]
+
+            for ww in hundred:
+                number_hundred = number_hundred * word.NAME_NUMBER_DICT[ww]
+
+            print('get_number(): hundred number:', number_hundred)
+            print('get_number(): hundred:', hundred)
+
+            is_hundred = True
+            break
+
+    number_residue = number_in_result[:]
+
     if is_thousand:
-        number_residue = number_in_result[index_thousand + 1:]
-        print('forward(): with thousand number:', number)
-    else:
-        number_residue = number_in_result[:]
-        print('forward(): without thousand number:', number)
+        number_residue = number_in_result[index_thousand+1:]
+
+    if is_hundred:
+        number_residue = number_in_result[index_hundred+1:]
 
     for ww in number_residue:
-        number = number + num.name_number[ww]
+        number = number + word.NAME_NUMBER_DICT[ww]
 
-    print('forward(): number_in_result:', number_in_result)
+    number = number + number_hundred + number_thousand
 
-    print('forward(): number_residue:', number_residue)
-    print('forward(): number:', number)
+    print('get_number(): number_in_result:', number_in_result)
+    print('get_number(): number_residue:', number_residue)
+    print('get_number(): number:', number)
 
+def forward(set_commands, result_text):
+    number = get_number(set_commands, result_text)
 
 
 def execute_command(commands_to_execute, set_commands, result_text):
