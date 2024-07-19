@@ -81,6 +81,8 @@ if LANGUAGE == 'en':
                                     If possible, inform the developer RedSeaFox about this situation'''
     BYE = '''Closing the program'''
 
+    HUNDRED_ONE_WORD = False
+
 elif LANGUAGE == 'ru':
     MODEL_VOSK = Model("vosk_model_small_ru")
 
@@ -117,6 +119,9 @@ elif LANGUAGE == 'ru':
     EXCEPT =  ''', что-то пошло не так. Попробуй обратиться опять к другу. 
                                 По возможности сообщи разработчику морской лисе об этой ситуации'''
     BYE = '''Закрываю программу'''
+
+    HUNDRED_ONE_WORD = True
+
 
 
 START_OF_LIST = 'start_of_list_' + LANGUAGE + '.mp3'
