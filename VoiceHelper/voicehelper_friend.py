@@ -14,6 +14,7 @@ import pyttsx3
 import vlc
 
 import voicehelper_friend_config as word
+import name_of_numbers as num
 
 
 CHANNELS = 1  # моно
@@ -118,7 +119,7 @@ def say_text(text):
     engine.runAndWait()
 
 
-def commands_to_set(result_text):
+def result_by_words(result_text):
     result_text = result_text.replace("\n", "")
     result_text = result_text.replace("partial", "")
     result_text = result_text.replace(":", "")
@@ -126,9 +127,7 @@ def commands_to_set(result_text):
     result_text = result_text.replace("}", "")
     result_text = result_text.replace('"', "")
 
-    set_commands = set(result_text.split())
-
-    return set_commands
+    return result_text.split()
 
 
 def listen_to_user():
@@ -196,7 +195,59 @@ def search_commands_to_execute(set_commands):
 
     print('search_commands_to_execute(): commands_to_execute: ', commands_to_execute )
 
-def execute_command(commands_to_execute):
+
+def forward(set_commands, result_text):
+    print('forward(): result_text = ', result_text)
+
+    set_number_in_result = set_commands & num.All_NAME_NUMBER
+    print('forward(): set_number_in_result:', set_number_in_result)
+
+    if not set_number_in_result:
+        pass
+
+    number_in_result = []
+    is_thousand = False
+    index_thousand = 0
+    number = 0
+
+    for w in result_text:
+        if w in set_number_in_result:
+            number_in_result.append(w)
+
+    for w in num.NAME_THOUSAND:
+        if w in number_in_result:
+            number = 1
+
+            index_thousand = number_in_result.index(w)
+            thousand = number_in_result[:index_thousand + 1]
+
+            for ww in thousand:
+                number = number * num.name_number[ww]
+
+            print('forward(): thousand number:', number)
+
+            is_thousand = True
+            break
+
+    if is_thousand:
+        number_residue = number_in_result[index_thousand + 1:]
+        print('forward(): with thousand number:', number)
+    else:
+        number_residue = number_in_result[:]
+        print('forward(): without thousand number:', number)
+
+    for ww in number_residue:
+        number = number + num.name_number[ww]
+
+
+    print('forward(): number_in_result:', number_in_result)
+    print('forward(): thousand:', thousand)
+    print('forward(): number_residue:', number_residue)
+    print('forward(): number:', number)
+
+
+
+def execute_command(commands_to_execute, set_commands, result_text):
     if not commands_to_execute:
         say_text(word.USER_NAME + word.NO_COMMAND)
         print('execute_command():', word.NO_COMMAND)
@@ -216,8 +267,9 @@ def execute_command(commands_to_execute):
         play_previous()
     elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
         commands_to_execute -= word.SET_FORWARD
-        print('execute_command(): ', word.PLAYER_FORWARD)
-        say_text(word.USER_NAME + word.PLAYER_FORWARD)
+        # print('execute_command(): ', word.PLAYER_FORWARD)
+        # say_text(word.USER_NAME + word.PLAYER_FORWARD)
+        forward(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_BACK):
         commands_to_execute -= word.SET_BACK
         print('execute_command(): ', word.PLAYER_BACK)
@@ -235,7 +287,7 @@ def execute_command(commands_to_execute):
         say_text(word.USER_NAME + word.EXCEPT)
         print('execute_command(): ', word.EXCEPT)
 
-def process_text_main(set_commands):
+def process_text_main(set_commands, result_text):
     set_commands -= {word.FRIEND}
     # print('process_text_main(): set_commands без слова друг:', set_commands)
     print('process_text_main(): set_commands without the word friend:', set_commands)
@@ -256,12 +308,13 @@ def process_text_main(set_commands):
         print('process_text_main():  ', word.USER_NAME, word.SAY_COMMAND)
         result_text = listen_to_user()
         print('process_text_main(): result_text', result_text.replace("\n", ""))
-        set_commands = commands_to_set(result_text)
+        result_text = result_by_words(result_text)
+        set_commands = set(result_text)
         set_commands -= {word.FRIEND}
         # Проверяем, есть ли в словах пользователя команды для выполнения
         commands_to_execute = search_commands_to_execute(set_commands)
 
-    execute_command(commands_to_execute)
+    execute_command(commands_to_execute, set_commands, result_text)
 
 
 def bye():
@@ -293,7 +346,9 @@ def main():
             if word.FRIEND in result_text:
                 # В строке "друг" может быть в словах "вдруг", "другой" и проч.
                 # Поэтому далее проверяем на точное соответствие слову друг
-                set_commands = commands_to_set(result_text)
+                result_text = result_by_words(result_text)
+                # set_commands = commands_to_set(result_text)
+                set_commands = set(result_text)
                 if word.FRIEND in set_commands:
                     # Как только услышали слово друг, останавливаем плеер, если он включен
                     if media_list_player.is_playing():
@@ -301,7 +356,7 @@ def main():
 
                     # print('main(): обнаружено слово друг. set_commands=', set_commands, '. Запускаем process_text_main')
                     print('main(): The word friend has been discovered. set_commands=', set_commands, ', Running process_text_main')
-                    process_text_main(set_commands)
+                    process_text_main(set_commands, result_text)
 
             print('main() after search friend: media_list_player.get_state(): ', media_list_player.get_state())
             # print('main(): after search friend media_list_player.is_playing(): ', media_list_player.is_playing())
