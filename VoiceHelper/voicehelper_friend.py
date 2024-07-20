@@ -198,23 +198,30 @@ def search_commands_to_execute(set_commands):
 
 def get_number(set_commands, result_text):
 
-    print('get_number(): result_text = ', result_text)
+    # print('get_number(): result_text = ', result_text)
 
     set_number_in_result = set_commands & word.All_NAME_NUMBER
-    print('get_number(): set_number_in_result:', set_number_in_result)
+    # print('get_number(): set_number_in_result:', set_number_in_result)
 
     if not set_number_in_result:
         return 0
 
     number_in_result = []
+
     is_thousand = False
     index_thousand = 0
+    number_thousand = 0
+
     is_hundred = False
+    index_hundred = 0
+    number_hundred = 0
+
     number = 0
 
     for w in result_text:
         if w in set_number_in_result:
             number_in_result.append(w)
+    # print('get_number(): number_in_result', number_in_result)
 
     for w in word.NAME_THOUSAND:
         if w in number_in_result:
@@ -226,8 +233,8 @@ def get_number(set_commands, result_text):
             for ww in thousand:
                 number_thousand = number_thousand * word.NAME_NUMBER_DICT[ww]
 
-            print('get_number(): thousand number:', number_thousand)
-            print('get_number(): thousand:', thousand)
+            # print('get_number(): number_thousand:', number_thousand)
+            # print('get_number(): thousand:', thousand)
 
             is_thousand = True
             break
@@ -237,13 +244,17 @@ def get_number(set_commands, result_text):
             number_hundred = 1
 
             index_hundred = number_in_result.index(w)
-            hundred = number_in_result[index_thousand+1:index_hundred + 1]
+
+            if is_thousand:
+                hundred = number_in_result[index_thousand+1:index_hundred + 1]
+            else:
+                hundred = number_in_result[:index_hundred + 1]
 
             for ww in hundred:
                 number_hundred = number_hundred * word.NAME_NUMBER_DICT[ww]
 
-            print('get_number(): hundred number:', number_hundred)
-            print('get_number(): hundred:', hundred)
+            # print('get_number(): number_hundred:', number_hundred)
+            # print('get_number(): hundred:', hundred)
 
             is_hundred = True
             break
@@ -259,14 +270,19 @@ def get_number(set_commands, result_text):
     for ww in number_residue:
         number = number + word.NAME_NUMBER_DICT[ww]
 
-    number = number + number_hundred + number_thousand
+    number = number_thousand + number_hundred + number
 
-    print('get_number(): number_in_result:', number_in_result)
-    print('get_number(): number_residue:', number_residue)
-    print('get_number(): number:', number)
+    if number > word.MAX_NUMBER:
+        say_text(word.MESSAGE_MAX_NUMBER)
+
+    # print('get_number(): number_residue:', number_residue)
+    # print('get_number(): number:', number)
+
+    return number
 
 def forward(set_commands, result_text):
     number = get_number(set_commands, result_text)
+    print('forward(): number:', number)
 
 
 def execute_command(commands_to_execute, set_commands, result_text):
