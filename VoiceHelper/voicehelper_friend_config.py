@@ -60,6 +60,7 @@ if LANGUAGE == 'en':
     SET_PREVIOUS = { 'previous'}
     SET_FORWARD = {'forward'}  # here you will specify the number of tracks or seconds/minutes
     SET_BACK = {'back'}  # here you will specify the number of tracks or seconds/minutes
+    SET_GOTO = {'go to', 'move', 'number'}
     SET_BYE = {'bye', 'goodbye', 'adieu'}
 
     SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE
@@ -76,6 +77,7 @@ if LANGUAGE == 'en':
                     This command is not working yet.
                     But in the future, this command will allow you to move back several tracks 
                     and move inside the track  '''
+    GOTO = ', moving on to track number '
     PLAYER_SEARCH = ', SEARCH '
     EXCEPT = ''', Something went wrong. Try call for friend again.. 
                                     If possible, inform the developer RedSeaFox about this situation'''
@@ -93,47 +95,39 @@ if LANGUAGE == 'en':
         'семьсот', 'восемьсот', 'девятьсот', 'тысяча', 'тысячу', 'тысячи', 'тысяч'
     }
 
-    NAME_THOUSAND = {'тысяча', 'тысячу', 'тысячи', 'тысяч'}
+    NAME_THOUSAND = {'thousand'}
     NAME_HUNDRED = {'hundred'}
 
     NAME_NUMBER_DICT = {
-        'один': 1, 'одна': 1, 'одну': 1, 'одно': 1,
-        'два': 2, 'две': 2,
-        'три': 3,
-        'четыре': 4,
-        'пять': 5,
-        'шесть': 6,
-        'семь': 7,
-        'восемь': 8,
-        'девять': 9,
-        'десять': 10,
-        'одиннадцать': 11,
-        'двенадцать': 12,
-        'тринадцать': 13,
-        'четырнадцать': 14,
-        'пятнадцать': 15,
-        'шестнадцать': 16,
-        'семнадцать': 17,
-        'восемнадцать': 18,
-        'девятнадцать': 19,
-        'двадцать': 20,
-        'тридцать': 30,
-        'сорок': 40,
-        'пятьдесят': 50,
-        'шестьдесят': 60,
-        'семьдесят': 70,
-        'восемьдесят': 80,
-        'девяносто': 90,
-        'сто': 100,
-        'двести': 200,
-        'триста': 300,
-        'четыреста': 400,
-        'пятьсот': 500,
-        'шестьсот': 600,
-        'семьсот': 700,
-        'восемьсот': 800,
-        'девятьсот': 900,
-        'тысяча': 1000, 'тысячу': 1000, 'тысячи': 1000, 'тысяч': 1000
+        'one': 1,
+        'two': 2,
+        'three': 3,
+        'four': 4,
+        'five': 5,
+        'six': 6,
+        'seven': 7,
+        'eight': 8,
+        'nine': 9,
+        'ten': 10,
+        'eleven': 11,
+        'twelve': 12,
+        'thirteen': 13,
+        'fourteen': 14,
+        'fifteen': 15,
+        'sixteen': 16,
+        'seventeen': 17,
+        'eighteen': 18,
+        'nineteen': 19,
+        'twenty': 20,
+        'thirty': 30,
+        'forty': 40,
+        'fifty': 50,
+        'sixty': 60,
+        'seventy': 70,
+        'eighty': 80,
+        'ninety': 90,
+        'hundred': 100,
+        'thousand': 1000
     }
 
 elif LANGUAGE == 'ru':
@@ -156,9 +150,11 @@ elif LANGUAGE == 'ru':
     SET_PREVIOUS = {'предыдущий', 'предыдущие', 'предыдущее', 'предыдущая', 'предыдущая', 'предыдущей'}
     SET_FORWARD = {'вперед', 'вперёд'}  # здесь будет указание количества треков или секунд/минут
     SET_BACK = {'назад'}  # здесь будет указание количества треков или секунд/минут
+    SET_GOTO= {'иди', 'перейди', 'номер'}
     SET_BYE = {'пока', 'до свидания', 'прощай'}
 
-    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE
+
+    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE | SET_GOTO
 
     NO_COMMAND =  ', я не услышал команду. Обратись опять к другу'
     PLAYER_START = ', включаю плеер'
@@ -168,6 +164,7 @@ elif LANGUAGE == 'ru':
                     Но в будущем эта команда позволит переходить на несколько треков вперед и передвигаться внутри трека '''
     PLAYER_BACK  = ''', команда назад. Пока эта команда не работает. 
                     Но в будущем эта команда позволит переходить на несколько треков назад и передвигаться внутри трека '''
+    GOTO = ', перехожу к треку номер '
     PLAYER_SEARCH = ', ищу '
     EXCEPT =  ''', что-то пошло не так. Попробуй обратиться опять к другу. 
                                 По возможности сообщи разработчику морской лисе об этой ситуации'''
