@@ -228,5 +228,8 @@ elif LANGUAGE == 'ru':
         'тысяча': 1000, 'тысячу': 1000, 'тысячи': 1000, 'тысяч': 1000
     }
 
+    MAX_NUMBER = 19999
+    MESSAGE_MAX_NUMBER = ', я могу работать только с числами не больше 20000'
+
 START_OF_LIST = 'start_of_list_' + LANGUAGE + '.mp3'
 END_OF_LIST = 'end_of_list_' + LANGUAGE + '.mp3'
