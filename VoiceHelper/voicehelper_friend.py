@@ -280,10 +280,19 @@ def get_number(set_commands, result_text):
 
     return number
 
-def forward(set_commands, result_text):
-    number = get_number(set_commands, result_text)
-    print('forward(): number:', number)
+# def forward(set_commands, result_text):
+    # number = get_number(set_commands, result_text)
+    # media_list_player.play_item_at_index(number) # переходит к треку номер number
 
+    # print('forward(): number:', number)
+
+def go_to(set_commands, result_text):
+    number = get_number(set_commands, result_text)
+    say_text(word.USER_NAME + word.GOTO + str(number))
+    if media_list_player.get_state() == vlc.State(0):
+        play_vlc()
+    media_list_player.play_item_at_index(number)  # переходит к треку номер number
+    print('forward(): number:', number)
 
 def execute_command(commands_to_execute, set_commands, result_text):
     if not commands_to_execute:
@@ -303,11 +312,15 @@ def execute_command(commands_to_execute, set_commands, result_text):
         print('execute_command(): ', word.PLAYER_PREVIOUS)
         say_text(word.USER_NAME + word.PLAYER_PREVIOUS)
         play_previous()
+    elif not commands_to_execute.isdisjoint(word.SET_GOTO):
+        commands_to_execute -= word.SET_GOTO
+        go_to(set_commands, result_text)
+
     elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
         commands_to_execute -= word.SET_FORWARD
         # print('execute_command(): ', word.PLAYER_FORWARD)
         # say_text(word.USER_NAME + word.PLAYER_FORWARD)
-        forward(set_commands, result_text)
+        # forward(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_BACK):
         commands_to_execute -= word.SET_BACK
         print('execute_command(): ', word.PLAYER_BACK)
