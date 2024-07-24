@@ -286,7 +286,7 @@ def get_number(set_commands, result_text):
 
     # print('forward(): number:', number)
 
-def go_to(set_commands, result_text):
+def go_to_in(set_commands, result_text):
     number = get_number(set_commands, result_text)
     say_text(word.USER_NAME + word.GOTO + str(number))
     if media_list_player.get_state() == vlc.State(0):
@@ -305,6 +305,50 @@ def go_to_into(set_commands, result_text):
     mp.set_time(number*1000)
 
 
+def go_to(set_commands, result_text):
+    number = get_number(set_commands, result_text)
+
+    if number:
+        say_text(word.USER_NAME + word.GOTO + str(number))
+    else:
+        say_text(word.USER_NAME + word.NO_NUMBER)
+        return
+
+    if media_list_player.get_state() == vlc.State(0):
+        play_vlc()
+    media_list_player.play_item_at_index(number)  # переходит к треку номер number
+    print('forward(): number:', number)
+
+
+def go_forward(set_commands, result_text):
+    number = get_number(set_commands, result_text)
+
+    if not number:
+        say_text(word.USER_NAME + word.NO_NUMBER)
+        return
+
+    if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
+        if media_list_player.get_state() == vlc.State(0):
+            play_vlc()
+
+        for _ in range(number):
+            media_list_player.next()
+
+        print('forward(): number:', number)
+
+    elif not set_commands.isdisjoint(word.SET_MEASURE_TIME):
+        pass
+    else:
+        say_text(word.USER_NAME + word.MEASURE_UNDEFINED)
+
+
+
+    say_text(word.USER_NAME + word.GOTO + str(number))
+    if media_list_player.get_state() == vlc.State(0):
+        play_vlc()
+    print('forward(): number:', number)
+
+
 def execute_command(commands_to_execute, set_commands, result_text):
     if not commands_to_execute:
         say_text(word.USER_NAME + word.NO_COMMAND)
@@ -314,25 +358,23 @@ def execute_command(commands_to_execute, set_commands, result_text):
         say_text(word.USER_NAME + word.PLAYER_START)
         play_vlc()
     elif not commands_to_execute.isdisjoint(word.SET_NEXT):
-        commands_to_execute -= word.SET_NEXT
+        # commands_to_execute -= word.SET_NEXT
         print('execute_command(): ',  word.PLAYER_NEXT)
         say_text(word.USER_NAME + word.PLAYER_NEXT)
         play_next()
     elif not commands_to_execute.isdisjoint(word.SET_PREVIOUS):
-        commands_to_execute -= word.SET_PREVIOUS
+        # commands_to_execute -= word.SET_PREVIOUS
         print('execute_command(): ', word.PLAYER_PREVIOUS)
         say_text(word.USER_NAME + word.PLAYER_PREVIOUS)
         play_previous()
-    # elif not commands_to_execute.isdisjoint(word.SET_GOTO):
-    #     commands_to_execute -= word.SET_GOTO
-    #     go_to(set_commands, result_text)
-
     elif not commands_to_execute.isdisjoint(word.SET_GOTO):
-        commands_to_execute -= word.SET_GOTO
-        go_to_into(set_commands, result_text)
-
+        set_commands -= word.SET_GOTO
+        go_to(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
-        commands_to_execute -= word.SET_FORWARD
+        set_commands -= word.SET_FORWARD
+        go_forward(set_commands, result_text)
+
+
         # print('execute_command(): ', word.PLAYER_FORWARD)
         # say_text(word.USER_NAME + word.PLAYER_FORWARD)
         # forward(set_commands, result_text)
@@ -453,9 +495,25 @@ def main():
                 #
                 # print('main(): media_list_player.get_state()', media_list_player.get_state())
                 # print('main(): media_list_player.is_playing()',media_list_player.is_playing())
+            # else:
+            #     # ************************* TEST ***************************************
+            #     media_player = media_list_player.get_media_player()
+            #     med = media_player.get_media()
+            #     # med.tracks_get() если None, то значит это не медиа файл.
+            #     # med1 = med.tracks_get()
+            #     # Можно использовать это условие, чтобы перейти к следующему треку,
+            #     # но это еще один объект. Пока он не нужен
+            #     # b1=med.tracks_get()
+            #     # Смотрела также эти варианты
+            #     # b3 = med.get_mrl()  # можно получить имя трека
+            #     b2 = med.get_tracks_info()
+            #     b5 = med.get_state()
+            #     b6 = med.get_type()
+            #     # ************************* TEST ***************************************
 
             print('main(): media_list_player.get_state()', media_list_player.get_state())
             # print('main(): media_list_player.is_playing()', media_list_player.is_playing())
+
 
             rec.Reset()
             stream.stop_stream()
