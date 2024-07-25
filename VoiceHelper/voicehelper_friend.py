@@ -184,17 +184,15 @@ def play_previous():
         else:
             stepping = False
 
-
-def search_commands_to_execute(set_commands):
-    print('search_commands_to_execute(): set_commands: ', set_commands )
-    print('search_commands_to_execute(): set_all_commands: ', word.SET_ALL_COMMANDS )
-
-    commands_to_execute = set_commands & word.SET_ALL_COMMANDS
-
-    return commands_to_execute
-
-    print('search_commands_to_execute(): commands_to_execute: ', commands_to_execute )
-
+# def search_commands_to_execute(set_commands):
+#     print('search_commands_to_execute(): set_commands: ', set_commands )
+#     print('search_commands_to_execute(): set_all_commands: ', word.SET_ALL_COMMANDS )
+#
+#     commands_to_execute = set_commands & word.SET_ALL_COMMANDS
+#
+#     return commands_to_execute
+#
+#     print('search_commands_to_execute(): commands_to_execute: ', commands_to_execute )
 
 def get_number(set_commands, result_text):
 
@@ -272,6 +270,8 @@ def get_number(set_commands, result_text):
 
     number = number_thousand + number_hundred + number
 
+    # todo
+    # убрать ограничение
     if number > word.MAX_NUMBER:
         say_text(word.MESSAGE_MAX_NUMBER)
 
@@ -308,6 +308,9 @@ def go_to_into(set_commands, result_text):
 def go_to(set_commands, result_text):
     number = get_number(set_commands, result_text)
 
+    # todo
+    # Вставить проверку, чтобы number был не больше, чем число треков в плейлисте
+
     if number:
         say_text(word.USER_NAME + word.GOTO + str(number))
     else:
@@ -317,7 +320,7 @@ def go_to(set_commands, result_text):
     if media_list_player.get_state() == vlc.State(0):
         play_vlc()
     media_list_player.play_item_at_index(number)  # переходит к треку номер number
-    print('forward(): number:', number)
+    print('forward(): number: ', number)
 
 
 def go_forward(set_commands, result_text):
@@ -328,12 +331,23 @@ def go_forward(set_commands, result_text):
         return
 
     if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
+        # todo
+        # добавить ограничение на число треков, через которые можно перескочить, т.к.
+        # приходится делать time.sleep(0.01)
+        # Думаю 10 треков хватит + не больше числа треков в плейлисте
         if media_list_player.get_state() == vlc.State(0):
             play_vlc()
 
         for _ in range(number):
             media_list_player.next()
-
+            # todo
+            # Возможно вынести время сна в voicehelper_friend_config.py, т.к.
+            # на разных компах возможно надо другое время сна
+            # time.sleep(0.5)
+            time.sleep(0.01)
+        # Не нашла ничего другого для перехода на заданное количество треков от ТЕКУЩЕГО трека.
+        # А именно, не нашла как определить индекс текущего трека.
+        # MediaList.index_of_item не подходит, т.к. ищет первое вхождение, а md в плейлисте может дублироваться
         print('forward(): number:', number)
 
     elif not set_commands.isdisjoint(word.SET_MEASURE_TIME):
@@ -401,7 +415,8 @@ def process_text_main(set_commands, result_text):
     print('process_text_main(): set_commands without the word friend:', set_commands)
 
     # Проверяем, есть ли в словах пользователя команды для выполнения
-    commands_to_execute = search_commands_to_execute(set_commands)
+    # commands_to_execute = search_commands_to_execute(set_commands)
+    commands_to_execute = set_commands & word.SET_ALL_COMMANDS
     # print('process_text_main(): commands_to_execute :', commands_to_execute)
 
     # Если во множестве нет других слов (множество пустое), значит надо запросить команды
@@ -420,7 +435,8 @@ def process_text_main(set_commands, result_text):
         set_commands = set(result_text)
         set_commands -= {word.FRIEND}
         # Проверяем, есть ли в словах пользователя команды для выполнения
-        commands_to_execute = search_commands_to_execute(set_commands)
+        # commands_to_execute = search_commands_to_execute(set_commands)
+        commands_to_execute = set_commands & word.SET_ALL_COMMANDS
 
     execute_command(commands_to_execute, set_commands, result_text)
 
@@ -448,7 +464,7 @@ def main():
             print('\n')
             print('main(): result_text :', result_text.replace("\n", ""), end='\n')
 
-            print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
+            # print('main() before search friend: media_list_player.get_state(): ', media_list_player.get_state())
             # print('main() before search friend: media_list_player.is_playing(): ', media_list_player.is_playing())
 
             if word.FRIEND in result_text:
@@ -466,7 +482,7 @@ def main():
                     print('main(): The word friend has been discovered. set_commands=', set_commands, ', Running process_text_main')
                     process_text_main(set_commands, result_text)
 
-            print('main() after search friend: media_list_player.get_state(): ', media_list_player.get_state())
+            # print('main() after search friend: media_list_player.get_state(): ', media_list_player.get_state())
             # print('main(): after search friend media_list_player.is_playing(): ', media_list_player.is_playing())
 
             # vlc.State(6) может быть или если список закончился или если файл не воспроизводится (не медиа формат)
@@ -489,31 +505,28 @@ def main():
                 # b5=med.get_state()
                 # b6=med.get_type()
 
-                print('main() (if media_list_player.get_state() == vlc.State(6)): ', media_list_player.get_state() == vlc.State(6))
+                print('main() (if media_list_player.get_state() == Ended: ',
+                      media_list_player.get_state() == vlc.State(6))
                 print('main(): med.get_mrl() = ', med.get_mrl())
                 print('main(): med.get_state() = ', med.get_state())
                 #
                 # print('main(): media_list_player.get_state()', media_list_player.get_state())
                 # print('main(): media_list_player.is_playing()',media_list_player.is_playing())
-            # else:
-            #     # ************************* TEST ***************************************
-            #     media_player = media_list_player.get_media_player()
-            #     med = media_player.get_media()
-            #     # med.tracks_get() если None, то значит это не медиа файл.
-            #     # med1 = med.tracks_get()
-            #     # Можно использовать это условие, чтобы перейти к следующему треку,
-            #     # но это еще один объект. Пока он не нужен
-            #     # b1=med.tracks_get()
-            #     # Смотрела также эти варианты
-            #     # b3 = med.get_mrl()  # можно получить имя трека
-            #     b2 = med.get_tracks_info()
-            #     b5 = med.get_state()
-            #     b6 = med.get_type()
-            #     # ************************* TEST ***************************************
+            # **************** debug ********************
+            elif media_list_player.get_state() == vlc.State(3):
+                print('main() (if media_list_player.get_state()==Playing: ',
+                      media_list_player.get_state() == vlc.State(3))
+                media_player = media_list_player.get_media_player()
+                med = media_player.get_media()
+                print('main():tracks_get()', med.tracks_get())
+                print('main(): med.get_mrl(): ', med.get_mrl())
+                print('main(): med.get_tracks_info(): ', med.get_tracks_info())
+                print('main(): med.get_state(): ', med.get_state())
+                print('main(): med.get_type(): ', med.get_type())
+            # **************** debug ********************
 
             print('main(): media_list_player.get_state()', media_list_player.get_state())
             # print('main(): media_list_player.is_playing()', media_list_player.is_playing())
-
 
             rec.Reset()
             stream.stop_stream()
