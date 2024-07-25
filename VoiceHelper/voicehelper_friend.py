@@ -338,6 +338,9 @@ def go_forward(set_commands, result_text):
         if media_list_player.get_state() == vlc.State(0):
             play_vlc()
 
+        if number > word.MAX_JUMP:
+            say_text(word.LIMIT_MAX_JUM)
+
         for _ in range(number):
             media_list_player.next()
             # todo
@@ -351,10 +354,26 @@ def go_forward(set_commands, result_text):
         print('forward(): number:', number)
 
     elif not set_commands.isdisjoint(word.SET_MEASURE_TIME):
-        pass
+        time_factor = 1
+        if set_commands.isdisjoint(word.SET_MEASURE_SECOND):
+            time_factor = 1000
+        elif set_commands.isdisjoint(word.SET_MEASURE_MINUTE):
+            time_factor = 60000
+        elif set_commands.isdisjoint(word.SET_MEASURE_HOUR):
+            time_factor = 3600000
+
+        media_player = media_list_player.get_media_player()
+        time_now = media_player.get_time()
+        time_expected = time_now + number * time_factor
+        time_track = media_player.get_length()
+
+        if time_expected > time_track:
+            say_text(word.END_OF_TRAC)
+            media_player.set_time(time_track - 10)
+        else:
+            media_player.set_time(time_expected)
     else:
         say_text(word.USER_NAME + word.MEASURE_UNDEFINED)
-
 
 
     say_text(word.USER_NAME + word.GOTO + str(number))
@@ -518,6 +537,7 @@ def main():
                       media_list_player.get_state() == vlc.State(3))
                 media_player = media_list_player.get_media_player()
                 med = media_player.get_media()
+                med.get_duration()
                 print('main():tracks_get()', med.tracks_get())
                 print('main(): med.get_mrl(): ', med.get_mrl())
                 print('main(): med.get_tracks_info(): ', med.get_tracks_info())
