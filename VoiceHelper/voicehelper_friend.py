@@ -258,7 +258,7 @@ def get_number(set_commands, result_text):
 
 # Переход к треку под указанным номером (например, "трек 3") или
 # к указанному времени (например 20 секунд) внутри трека
-# Пока распознается только время или в секундах или в минутах или в часах
+# Пока распознается только время или в секундах, или в минутах, или в часах.
 # То есть время 2 минуты 6 секунд будет распознано как 2 минуты
 def go_to(set_commands, result_text):
     number = get_number(set_commands, result_text)
@@ -268,15 +268,16 @@ def go_to(set_commands, result_text):
         say_text(word.USER_NAME + word.NO_NUMBER)
         return
 
-    if media_list_player.get_state() == vlc.State(0):
-        play_vlc()
-
     if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
-        if number > len_playlist:
-            say_text(word.USER_NAME + word.number_greater_len_pl(len_playlist))
+        if media_list_player.get_state() == vlc.State(0):
+            play_vlc()
+            media_list_player.set_pause(1)
+
+        if number > len_playlist - 2:
+            say_text(word.USER_NAME + word.number_greater_len_pl(number, len_playlist-2))
             return
 
-        say_text(word.USER_NAME + word.GOTO + str(number))
+        say_text(word.USER_NAME + word.GOTO_TRACK + str(number))
 
         media_list_player.play_item_at_index(number)  # переходит к треку номер number
 
@@ -290,16 +291,18 @@ def go_to(set_commands, result_text):
         elif not set_commands.isdisjoint(word.SET_MEASURE_HOUR):
             time_factor = 3600000
 
-
         media_player = media_list_player.get_media_player()
         media_player.set_time(number * time_factor)
 
         media_list_player.play()
 
+    else:
+        say_text(word.USER_NAME + word.MEASURE_UNDEFINED)
 
-# Быстрая перемотка. Прыжок через несколько треков (например два трека)
+
+# Быстрая перемотка вперед. Прыжок через несколько треков (например два трека)
 # или через несколько секунд/минут/часов (например 20 секунд)
-# Пока распознается только время или в секундах или в минутах или в часах
+# Пока распознается только время или в секундах, или в минутах, или в часах.
 # То есть время 2 минуты 6 секунд будет распознано как 2 минуты
 def go_forward(set_commands, result_text):
     number = get_number(set_commands, result_text)
@@ -339,13 +342,69 @@ def go_forward(set_commands, result_text):
         media_player = media_list_player.get_media_player()
         time_now = media_player.get_time()
         time_expected = time_now + number * time_factor
-        time_track = media_player.get_length()
+        # time_track = media_player.get_length()
 
         media_list_player.play()
 
-        if time_expected > time_track:
-            media_player.set_time(time_track - 10)
-            say_text(word.END_OF_TRAC)
+        # Не знаю, надо ли сообщать о превышении размера трека
+        # if time_expected > time_track:
+        #     media_player.set_time(time_track - 3000)
+        #     say_text(word.END_OF_TRAC)
+        # else:
+        #     media_player.set_time(time_expected)
+        media_player.set_time(time_expected)
+
+    else:
+        say_text(word.USER_NAME + word.MEASURE_UNDEFINED)
+
+
+# Быстрая перемотка назад. Прыжок через несколько треков (например два трека)
+# или через несколько секунд/минут/часов (например 20 секунд).
+# Пока распознается только время или в секундах, или в минутах, или в часах.
+# То есть время 2 минуты 6 секунд будет распознано как 2 минуты
+def go_back(set_commands, result_text):
+    number = get_number(set_commands, result_text)
+
+    if not number:
+        say_text(word.USER_NAME + word.NO_NUMBER)
+        return
+
+    if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
+        if number > word.MAX_JUMP:
+            say_text(word.LIMIT_MAX_JUM)
+
+        if media_list_player.get_state() == vlc.State(0):
+            play_vlc()
+
+        for _ in range(number):
+            media_list_player.previous()
+            # todo
+            # Возможно вынести время сна в voicehelper_friend_config.py, т.к.
+            # на разных компах возможно надо другое время сна
+            # time.sleep(0.5)
+            time.sleep(0.01)
+        # Не нашла ничего другого для перехода на заданное количество треков от ТЕКУЩЕГО трека.
+        # А именно, не нашла как определить индекс текущего трека.
+        # MediaList.index_of_item не подходит, т.к. ищет первое вхождение, а md в плейлисте может дублироваться
+        print('go_back(): number:', number)
+
+    elif not set_commands.isdisjoint(word.SET_MEASURE_TIME):
+        time_factor = 1
+        if not set_commands.isdisjoint(word.SET_MEASURE_SECOND):
+            time_factor = 1000
+        elif not set_commands.isdisjoint(word.SET_MEASURE_MINUTE):
+            time_factor = 60000
+        elif not set_commands.isdisjoint(word.SET_MEASURE_HOUR):
+            time_factor = 3600000
+
+        media_player = media_list_player.get_media_player()
+        time_now = media_player.get_time()
+        time_expected = time_now - number * time_factor
+
+        media_list_player.play()
+
+        if time_expected < 1:
+            media_player.set_time(1)
         else:
             media_player.set_time(time_expected)
     else:
@@ -370,14 +429,19 @@ def execute_command(commands_to_execute, set_commands, result_text):
         play_previous()
     elif not commands_to_execute.isdisjoint(word.SET_GOTO):
         set_commands -= word.SET_GOTO
+        # say_text(word.USER_NAME + word.GOTO)
+        print('execute_command(): GOTO / ', word.GOTO)
         go_to(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
         set_commands -= word.SET_FORWARD
+        say_text(word.USER_NAME + word.PLAYER_FORWARD)
+        print('execute_command(): ', word.PLAYER_FORWARD)
         go_forward(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_BACK):
         commands_to_execute -= word.SET_BACK
-        print('execute_command(): ', word.PLAYER_BACK)
         say_text(word.USER_NAME + word.PLAYER_BACK)
+        print('execute_command(): ', word.PLAYER_BACK)
+        go_back(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_SEARCH):
         commands_to_execute -= word.SET_SEARCH
         print('execute_command(): ', word.PLAYER_SEARCH)
@@ -391,9 +455,9 @@ def execute_command(commands_to_execute, set_commands, result_text):
         say_text(word.USER_NAME + word.EXCEPT)
         print('execute_command(): ', word.EXCEPT)
 
-def process_text_main(set_commands, result_text):
+def process_text_main(set_commands: set, result_text: str):
     set_commands -= {word.FRIEND}
-    print('process_text_main(): set_commands without the word friend:', set_commands)
+    # print('process_text_main(): set_commands without the word friend:', set_commands)
 
     # Проверяем, есть ли в словах пользователя команды для выполнения
     commands_to_execute = set_commands & word.SET_ALL_COMMANDS
@@ -406,16 +470,19 @@ def process_text_main(set_commands, result_text):
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
-        print('process_text_main(): commands_to_execute is empty')
+        # print('process_text_main(): commands_to_execute is empty')
         print('process_text_main():  ', word.USER_NAME, word.SAY_COMMAND)
         result_text = listen_to_user()
-        print('process_text_main(): result_text', result_text.replace("\n", ""))
+        # print('process_text_main(): result_text', result_text.replace("\n", ""))
         result_text = result_by_words(result_text)
         set_commands = set(result_text)
         set_commands -= {word.FRIEND}
         # Проверяем, есть ли в словах пользователя команды для выполнения
         commands_to_execute = set_commands & word.SET_ALL_COMMANDS
 
+    print('process_text_main(): result_text', result_text)
+    print('process_text_main(): set_commands', set_commands)
+    print('process_text_main(): commands_to_execute', commands_to_execute)
     execute_command(commands_to_execute, set_commands, result_text)
 
 
@@ -440,7 +507,7 @@ def main():
             result_text = rec.PartialResult()
 
             print('\n')
-            print('main(): result_text :', result_text.replace("\n", ""), end='\n')
+            print('main(): type(result_text): ', type(result_text), 'result_text: ', result_text.replace("\n", ""), end='\n')
 
             if word.FRIEND in result_text:
                 # В строке "друг" может быть в словах "вдруг", "другой" и проч.
