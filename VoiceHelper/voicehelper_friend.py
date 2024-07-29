@@ -313,7 +313,7 @@ def go_forward(set_commands, result_text):
 
     if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
         if number > word.MAX_JUMP:
-            say_text(word.LIMIT_MAX_JUM)
+            say_text(word.LIMIT_MAX_JUMP)
             return
 
         if media_list_player.get_state() == vlc.State(0):
@@ -374,7 +374,7 @@ def go_back(set_commands, result_text):
 
     if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
         if number > word.MAX_JUMP:
-            say_text(word.LIMIT_MAX_JUM)
+            say_text(word.LIMIT_MAX_JUMP)
             return
 
         if media_list_player.get_state() == vlc.State(0):
@@ -404,6 +404,8 @@ def go_back(set_commands, result_text):
         media_player = media_list_player.get_media_player()
         time_now = media_player.get_time()
         time_expected = time_now - number * time_factor
+
+        print('go_forward() by MEASURE_TIME: number:', number, '   time_factor: ', time_factor)
 
         media_list_player.play()
 
