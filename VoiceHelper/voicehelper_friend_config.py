@@ -39,6 +39,7 @@ You can also change the words used to invoke commands here.
 
 Здесь можно добавить еще один язык, если добавить еще один блок elif LANGUAGE == 'new language'
 и указать его в строке LANGUAGE = ''
+
 Так же здесь можно изменить слова, которыми вызываются команды.
 """
 
@@ -47,54 +48,84 @@ from vosk import Model
 if LANGUAGE == 'en':
     MODEL_VOSK = Model("vosk_model_small_en")
 
+    # The word is a beacon. The program uses it to determine that the user is accessing the program.
     FRIEND = 'friend'
+
+    # Launch the player
+    SET_PLAY = {'play', 'sing'}
+
+    # Go to the next track
+    SET_NEXT = {'next'}
+    # Go to the previous track
+    SET_PREVIOUS = { 'previous'}
+
+    # Go to:
+    #  or to the track with the specified number in the playlist
+    #  ot to a specific time in the track
+    SET_GOTO = {'go to', 'move', 'number'}
+
+    # Fast-forward:
+    # or through several tracks
+    # or to a specific time in the track
+    SET_FORWARD = {'forward'}
+    SET_BACK = {'back'}
+
+    # For the SET_GET, SET_FORWARD and SET_BACK commands,
+    # it specifies exactly how to move along tracks or in time.
+    SET_MEASURE_TRACK = {'track', 'song'}
+    SET_MEASURE_SECOND = {'second'}
+    SET_MEASURE_MINUTE = {'minute'}
+    SET_MEASURE_HOUR = {'hour'}
+
+    SET_BYE = {'bye', 'goodbye', 'adieu'}
+    SET_SEARCH = { 'search', 'find'}
+
+    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE | SET_GOTO
+    SET_MEASURE_TIME = SET_MEASURE_SECOND | SET_MEASURE_MINUTE | SET_MEASURE_HOUR
+
     SAY_COMMAND = ', tell me your command.'
-
     PROGRAM_IS_RUNNING = 'The program is running'
-
     PLAYLIST_NOT_FOUND = 'The playlist is not found. Playback is not possible'
     PLAYLIST_EXCEPTION = 'The playlist is not loaded. Unknown error. Contact the developer'
     PLAYLIST_END = ', this is the last track in the playlist'
     PLAYLIST_START = ', this is the beginning of the playlist.'
     PLAYLIST_EMPTY = 'The playlist is empty'
-
-    SET_PLAY = {'play', 'sing'}
-    SET_SEARCH = { 'search', 'find'}
-    SET_NEXT = {'next'}
-    SET_PREVIOUS = { 'previous'}
-    SET_FORWARD = {'forward'}  # here you will specify the number of tracks or seconds/minutes
-    SET_BACK = {'back'}  # here you will specify the number of tracks or seconds/minutes
-    SET_GOTO = {'go to', 'move', 'number'}
-    SET_BYE = {'bye', 'goodbye', 'adieu'}
-
-    SET_ALL_COMMANDS = SET_PLAY | SET_SEARCH | SET_NEXT | SET_PREVIOUS | SET_FORWARD | SET_BACK | SET_BYE
-
     NO_COMMAND = ''', I haven't heard your command. Call for friend again.'''
+    NO_NUMBER = ''', I haven't heard the number. Call for friend again.'''
     PLAYER_START = 'The player is starting'
-    PLAYER_NEXT = ''', I'm moving on to the next track.'''
-    PLAYER_PREVIOUS = ''', I'm moving on to the previous track.'''
-    PLAYER_FORWARD = ''', This is a command forwards. 
-                    This command is not working yet.
-                    But in the future, this command will allow you to move forward several tracks 
-                    and move inside the track '''
-    PLAYER_BACK = ''', , This is a command back. 
-                    This command is not working yet.
-                    But in the future, this command will allow you to move back several tracks 
-                    and move inside the track  '''
-    GOTO = ', moving on to track number '
-    PLAYER_SEARCH = ', SEARCH '
+
+    PLAYER_NEXT = ''', I'm going on to the next track.'''
+    PLAYER_PREVIOUS = ''', I'm going  on to the previous track.'''
+
+    PLAYER_FORWARD = ''', Fast forward '''
+    PLAYER_BACK = ''',  Fast backward '''
+
+    GOTO = ', go to track number '
+    GOTO_TRACK = ',go to track number '
+    MEASURE_UNDEFINED = ''', I didn't hear how to move. For a second, a minute, or a track?
+                                Call for friend again.'''
+    TIME_TRACK = ''', track duration '''
+
+    END_OF_TRAC = ', end of the track'
+
+    LIMIT_MAX_JUMP = ''', It takes a long time to go through several tracks,
+            therefore, the number of tracks when jumping through several tracks is limited to 20.
+            If you need to switch to more tracks, use the transition to a specific track by its number in the playlist.
+            To do this, use the commands:    ''' + ', '.join(SET_GOTO)
+
+    MAX_JUMP = 20
+
+    PLAYER_SEARCH = ', the search command is not working yet '
     EXCEPT = ''', Something went wrong. Try call for friend again.. 
                                     If possible, inform the developer RedSeaFox about this situation'''
     BYE = '''Closing the program'''
 
     All_NAME_NUMBER = {
-        'один', 'одна', 'одну', 'одно', 'два', 'две', 'три', 'четыре', 'пять',
-        'шесть', 'семь', 'восемь', 'девять', 'десять', 'одиннадцать', 'двенадцать',
-        'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать',
-        'восемнадцать', 'девятнадцать', 'двадцать', 'тридцать', 'сорок',
-        'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто',
-        'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот',
-        'семьсот', 'восемьсот', 'девятьсот', 'тысяча', 'тысячу', 'тысячи', 'тысяч'
+        'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen','fourteen', 'fifteen',
+        'sixteen', 'seventeen', 'eighteen', 'nineteen',
+        'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety',
+        'hundred', 'thousand'
     }
 
     NAME_THOUSAND = {'thousand'}
@@ -131,6 +162,9 @@ if LANGUAGE == 'en':
         'hundred': 100,
         'thousand': 1000
     }
+
+    MAX_NUMBER = 19999
+    MESSAGE_MAX_NUMBER = ', I can only work with numbers no more than 20,000'
 
 elif LANGUAGE == 'ru':
     MODEL_VOSK = Model("vosk_model_small_ru")
@@ -196,7 +230,7 @@ elif LANGUAGE == 'ru':
 
     END_OF_TRAC = ', конец трека'
 
-    LIMIT_MAX_JUM = ''', переход через несколько треков занимает много времени,
+    LIMIT_MAX_JUMP = ''', переход через несколько треков занимает много времени,
         поэтому количество треков при прыжке через несколько треков ограничено 20.
         Если надо перейти на большее количество треков, воспользуйся переходом к конкретному треку по его номеру в плейлисте.
         Для этого используй команды:    ''' + ', '.join(SET_GOTO)
