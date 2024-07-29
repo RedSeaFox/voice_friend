@@ -14,7 +14,6 @@ import pyttsx3
 import vlc
 
 import voicehelper_friend_config as word
-# import name_of_numbers as num
 
 
 CHANNELS = 1  # моно
@@ -168,8 +167,8 @@ def play_next():
 
 
 def play_previous():
-    res_step = media_list_player.previous()
-    time.sleep(0.5)
+    media_list_player.previous()
+    time.sleep(1)
 
     media_player = media_list_player.get_media_player()
 
@@ -253,13 +252,14 @@ def get_number(set_commands, result_text):
     # убрать ограничение 2000
     if number > word.MAX_NUMBER:
         say_text(word.MESSAGE_MAX_NUMBER)
+        return 0
 
     return number
 
 # Переход к треку под указанным номером (например, "трек 3") или
 # к указанному времени (например 20 секунд) внутри трека
 # Пока распознается только время или в секундах, или в минутах, или в часах.
-# То есть время 2 минуты 6 секунд будет распознано как 2 минуты
+# То есть время 2 минуты 6 секунд будет распознано как 8 секунд
 def go_to(set_commands, result_text):
     number = get_number(set_commands, result_text)
     print('go_to(): number: ', number)
@@ -303,7 +303,7 @@ def go_to(set_commands, result_text):
 # Быстрая перемотка вперед. Прыжок через несколько треков (например два трека)
 # или через несколько секунд/минут/часов (например 20 секунд)
 # Пока распознается только время или в секундах, или в минутах, или в часах.
-# То есть время 2 минуты 6 секунд будет распознано как 2 минуты
+# То есть время 2 минуты 6 секунд будет распознано как 8 секунд
 def go_forward(set_commands, result_text):
     number = get_number(set_commands, result_text)
 
@@ -314,6 +314,7 @@ def go_forward(set_commands, result_text):
     if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
         if number > word.MAX_JUMP:
             say_text(word.LIMIT_MAX_JUM)
+            return
 
         if media_list_player.get_state() == vlc.State(0):
             play_vlc()
@@ -328,7 +329,7 @@ def go_forward(set_commands, result_text):
         # Не нашла ничего другого для перехода на заданное количество треков от ТЕКУЩЕГО трека.
         # А именно, не нашла как определить индекс текущего трека.
         # MediaList.index_of_item не подходит, т.к. ищет первое вхождение, а md в плейлисте может дублироваться
-        print('forward(): number:', number)
+        print('go_forward() by MEASURE_TRACK: number:', number)
 
     elif not set_commands.isdisjoint(word.SET_MEASURE_TIME):
         time_factor = 1
@@ -342,11 +343,13 @@ def go_forward(set_commands, result_text):
         media_player = media_list_player.get_media_player()
         time_now = media_player.get_time()
         time_expected = time_now + number * time_factor
-        # time_track = media_player.get_length()
+
+        print('go_forward() by MEASURE_TIME: number:', number, '   time_factor: ', time_factor)
 
         media_list_player.play()
 
         # Не знаю, надо ли сообщать о превышении размера трека
+        # time_track = media_player.get_length()
         # if time_expected > time_track:
         #     media_player.set_time(time_track - 3000)
         #     say_text(word.END_OF_TRAC)
@@ -361,7 +364,7 @@ def go_forward(set_commands, result_text):
 # Быстрая перемотка назад. Прыжок через несколько треков (например два трека)
 # или через несколько секунд/минут/часов (например 20 секунд).
 # Пока распознается только время или в секундах, или в минутах, или в часах.
-# То есть время 2 минуты 6 секунд будет распознано как 2 минуты
+# То есть время 2 минуты 6 секунд будет распознано как 8 секунд
 def go_back(set_commands, result_text):
     number = get_number(set_commands, result_text)
 
@@ -372,6 +375,7 @@ def go_back(set_commands, result_text):
     if not set_commands.isdisjoint(word.SET_MEASURE_TRACK):
         if number > word.MAX_JUMP:
             say_text(word.LIMIT_MAX_JUM)
+            return
 
         if media_list_player.get_state() == vlc.State(0):
             play_vlc()
@@ -429,7 +433,6 @@ def execute_command(commands_to_execute, set_commands, result_text):
         play_previous()
     elif not commands_to_execute.isdisjoint(word.SET_GOTO):
         set_commands -= word.SET_GOTO
-        # say_text(word.USER_NAME + word.GOTO)
         print('execute_command(): GOTO / ', word.GOTO)
         go_to(set_commands, result_text)
     elif not commands_to_execute.isdisjoint(word.SET_FORWARD):
@@ -455,9 +458,8 @@ def execute_command(commands_to_execute, set_commands, result_text):
         say_text(word.USER_NAME + word.EXCEPT)
         print('execute_command(): ', word.EXCEPT)
 
-def process_text_main(set_commands: set, result_text: str):
+def process_text_main(set_commands, result_text):
     set_commands -= {word.FRIEND}
-    # print('process_text_main(): set_commands without the word friend:', set_commands)
 
     # Проверяем, есть ли в словах пользователя команды для выполнения
     commands_to_execute = set_commands & word.SET_ALL_COMMANDS
@@ -470,10 +472,8 @@ def process_text_main(set_commands: set, result_text: str):
         # и перезапускаем распознавание, чтобы убрать остатки былых слов
         rec.Reset()
         stream.start_stream()
-        # print('process_text_main(): commands_to_execute is empty')
         print('process_text_main():  ', word.USER_NAME, word.SAY_COMMAND)
         result_text = listen_to_user()
-        # print('process_text_main(): result_text', result_text.replace("\n", ""))
         result_text = result_by_words(result_text)
         set_commands = set(result_text)
         set_commands -= {word.FRIEND}
@@ -507,7 +507,7 @@ def main():
             result_text = rec.PartialResult()
 
             print('\n')
-            print('main(): type(result_text): ', type(result_text), 'result_text: ', result_text.replace("\n", ""), end='\n')
+            print('main(): result_text: ', result_text.replace("\n", ""), end='\n')
 
             if word.FRIEND in result_text:
                 # В строке "друг" может быть в словах "вдруг", "другой" и проч.
@@ -522,7 +522,7 @@ def main():
                     print('main(): The word friend has been discovered. set_commands=', set_commands, ', Running process_text_main')
                     process_text_main(set_commands, result_text)
 
-            # vlc.State(6) может быть или если список закончился или если файл не воспроизводится (не медиа формат)
+            # vlc.State(6) (Ended) может быть или если список закончился или если файл не воспроизводится (не медиа формат)
             if media_list_player.get_state() == vlc.State(6):
                 media_player = media_list_player.get_media_player()
 
