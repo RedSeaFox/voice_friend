@@ -62,7 +62,7 @@ if LANGUAGE == 'en':
     # Go to:
     #  or to the track with the specified number in the playlist
     #  ot to a specific time in the track
-    SET_GOTO = {'go to', 'move', 'number'}
+    SET_GOTO = {'go', 'move', 'number'}
 
     # Fast-forward:
     # or through several tracks
@@ -72,10 +72,10 @@ if LANGUAGE == 'en':
 
     # For the SET_GET, SET_FORWARD and SET_BACK commands,
     # it specifies exactly how to move along tracks or in time.
-    SET_MEASURE_TRACK = {'track', 'song'}
-    SET_MEASURE_SECOND = {'second'}
-    SET_MEASURE_MINUTE = {'minute'}
-    SET_MEASURE_HOUR = {'hour'}
+    SET_MEASURE_TRACK = {'track', 'tracks', 'song', 'songs'}
+    SET_MEASURE_SECOND = {'second', 'seconds'}
+    SET_MEASURE_MINUTE = {'minute', 'minutes'}
+    SET_MEASURE_HOUR = {'hour', 'hours'}
 
     SET_BYE = {'bye', 'goodbye', 'adieu'}
     SET_SEARCH = { 'search', 'find'}
@@ -303,7 +303,10 @@ END_OF_LIST = 'end_of_list_' + LANGUAGE + '.mp3'
 
 def number_greater_len_pl(number, len_playlist,):
     if LANGUAGE == 'en':
-        return ''''''
+        return f'''You  have said a number {number}.  
+        But there are {len_playlist} tracks in your playlist right now. 
+            To go to a specific track, call a number from one to {len_playlist}'''
+
     elif LANGUAGE == 'ru':
         return f''', ты назвала цифру {number}.  
         Но в твоем плейлисте сейчас {len_playlist} треков. 
