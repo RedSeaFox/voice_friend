@@ -1,4 +1,4 @@
-# Voice helper friend
+# Voice helper friend (en/ru)
 ## en
 ### About the program
 The program is designed for situations where there is no possibility or desire to control a computer with a mouse or keyboard.
