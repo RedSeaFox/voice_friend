@@ -1,5 +1,7 @@
-# Voice helper friend (en/ru)
-## en
+# Voice helper friend
+<details>
+<summary>English</summary>
+
 ### About the program
 The program is designed for situations where there is no possibility or desire to control a computer with a mouse or keyboard.
 
@@ -135,8 +137,12 @@ If the phrase is fully recognized, the player starts.
 If only the word *"friend"* is recognized, then the program asks you to tell her a command. We can pronounce one or more words from the list *SET_PLAY = {'play', 'play', 'sing', 'sing'}*. For example, we can say *"play, sing"*. Then the player will start.  
 If the program hears the word *"friend"* during playback, the player is paused and the program asks you to say a command.  
 If during playback the program hears *"friend"* and some other command that it knows how to execute, then the program executes this command.
+</details>
 
-## ru
+
+<details>
+<summary>Russian</summary>
+
 ### О программе
 Программа управления голосом для ситуаций, когда нет возможности или желания управлять компьютером при помощи мышки или клавиатуры.
 
@@ -268,5 +274,4 @@ USER_NAME = 'Lucy'
 Если во время воспроизведения программа услышит слово *"друг"*, то плеер ставится на паузу и программа просит произнести команду.  
 Если во время воспроизведения программа услышит *"друг"* и еще какую-то команду, которую она умеет выполнять, то программы выполнит эту команду.
 
-
-
+</details>
