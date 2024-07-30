@@ -3,7 +3,6 @@
 ### About the program
 The program is designed for situations where there is no possibility or desire to control a computer with a mouse or keyboard.
 
-Management refers to the most common actions of an ordinary user. 
 The main purpose of the program is listening or watching media. 
 
 It is also planned to add:
@@ -16,18 +15,41 @@ To determine that the program is being accessed, there is a special word in the 
 ``` python
  FRIEND = 'friend'
 ```
+You can redefine the beacon word.
 
 Russian is set by default in the program and, accordingly, the word-beacon is used by default in Russian (*"друг"*) and the username is also indicated in Russian (*"Люся"*). How to set the program up to work with English and other languages, see below.
 
 Management is carried out according to two scenarios.
 
-**The first scenario**: the program constantly listens to incoming words in portions of 2 seconds.  If the program detects an appeal to it in words (a beacon word), then it selects all the words that entered the interval of 2 seconds along with the beacon word and tries to find the correspondence of these words to the commands that it can execute. If such a match is found, the program executes a command from the match. If such a match is not found, the program proceeds to the second scenario.
-That is, the main purpose of the first scenario is to catch an appeal to a "friend" (the word is a beacon) and, if possible, execute the command. Therefore, the response in the first scenario is fast.
+**The first scenario**: The program constantly listens to incoming words in portions of 2 seconds.  If the program detects an appeal to it in words (a beacon word), then it selects all the words that entered the interval of 2 seconds along with the beacon word and tries to find the correspondence of these words to the commands that it can execute. If such a match is found, the program executes a command from the match. If such a match is not found, the program proceeds to the second scenario.
+That is, the main purpose of the first scenario is to catch an appeal to a *"friend"* (the word is a beacon) and, if possible, execute the command. Therefore, the response in the first scenario is fast.
 
 In the **second scenario** listening continues until the pause between words is more than 2-4 seconds or the message length is more than 100 characters. Next, the program also look for the correspondence of the words from the expression to the commands that the program can execute.
 That is, in the second scenario, the program has already realized that it has been contacted and that the command may be quite long and that the user may not say this command very quickly. Therefore, the reaction in the second scenario is not very fast.
 
-In the first release, you can launch the player and move back and forth through the playlist tracks. 
+For commands that the program can execute, in the file `voicehelper_friend_config.py` sets with corresponding sets of words are defined. The names of sets with commands have the form `SET_NAME_OF_COMMAND`. You can redefine the words that commands are called with.  
+
+So in the first release, the program is able to:
+1. **Launch the player.**
+This can be done using the words listed in the `SET_PLAY` set of the module `voicehelper_friend_config.py` . By default, this set includes the words: *'play', 'sing'*. That is, to start the player, you need to contact a *"friend"* and then say, for example, *"Play"*.
+
+2. **Go to the next and previous track.**  
+This can be done using the words listed in the sets `SET_NEXT` and `SET_PREVIOUS` of the module `voicehelper_friend_config.py `. By default, these sets include the words: *'next'* and *'previous'*.
+
+3. **Go to the track with the specified index in the playlist.**  
+The set `SET_GOTO` of the module`voicehelper_friend_config.py ` is used for this . By default, this set includes the words: *'go', 'move', 'number'*. You also need to specify that the transition is carried out by tracks.  For this, the `SET_MEASURE_TRACK` set of the module is used `voicehelper_friend_config.py `. By default, this set includes the words: *'track', 'song'*. You also need to specify a number in the command.  
+For example.  
+First we say the word *friend*. The program understands that it has been contacted. Then we say *"Go to on track five"* or *"Go to song five"*.
+
+5. **Jump inside the track by the specified time.**  
+For example, with such a phrase: *"Go to the second five"*. To do this, the sets `SET_GOTO, SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR` of the module are used `voicehelper_friend_config.py `. You can specify seconds, minutes, and hours. So far, only time is recognized, either in seconds, minutes, or hours. That is, if you say 2 minutes and 6 seconds, then the program recognizes this time as 8 seconds. In such cases, you can convert the time to seconds or minutes. For example, instead of 2 minutes and 6 seconds, say 126 seconds.  
+
+5. **Fast-forward/rewind through tracks or seconds/minutes/hours**.  
+For example, there may be such commands *"Forward 3 tracks", "Back 2 minutes"*. To do this, the sets `SET_FORWARD, SET_BACK, SET_MEASURE_TRACK, SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR` of the module are used `voicehelper_friend_config.py `. 
+It is possible to jump after several tracks (for example, two tracks) or after several seconds/minutes/hours (for example, 20 seconds). So far, only time is recognized, either in seconds, minutes, or hours. That is, the time of 2 minutes and 6 seconds will be recognized as 8 seconds 
+By default, the `SET_FORWARD` set includes the word: *'forward'*. The `SET_BACK` set includes the word *'back'*. The sets `SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR` contain the words *'second', 'minute', 'hour'*. The `SET_MEASURE_TRACK` set includes the words: *'track', 'song'*.
+
+
 At this stage, a single playlist named `my_playlist.m3u` is used, which is currently compiled in advance by "hands" (using the keyboard and mouse). You can create a playlist in the VLC media player program. The playlist looks something like this:
 ```
 #EXTM3U
@@ -41,12 +63,11 @@ file:///F:/MyMusic/Waltz.mp3
 file:///F:/MyMusic/Bella_ciao.mp3
 ```
 
-In the near future, it is planned to add moving several tracks back and forth, moving to a specific track, moving within tracks at a given interval.
 
 Since the user can express the same command in different words and since the recognition module does not always accurately recognize the endings of words, the program sets different call options for some commands.
 For example, the following words can be used to launch the player: *play, sing*. It is written in the module `voicehelper_friend_config.py `:
 ```python
-SET_PLAY = {'play', 'play', 'sing', 'sing'}
+SET_PLAY = {'play', 'sing'}
 ```
 
 At this stage, the program runs under Windows. Tested on Windows 10. 
@@ -74,35 +95,36 @@ Download lightweight libraries **vosk** `vosk-model-small-en-us-0.*` for managem
 
 Set up a virtual environment. Take the dependencies from the file `requirements.txt `.
 
-That is, the folder structure should be something like this:  
-![file_structure](/image/file_structure.jpg)
-
-
 In "VLC media player" create a playlist named `my_playlist.m3u`.  
 The playlist must contain the full path to the media files, indicating the disk and folders.  
 Example: `file:///F:/MyMusic/Romeo_and_Juliet.mp3`. 
 
-For the Russian language in the module `voicehelper_friend_config.py ` specify the name of the user who will communicate with the program. The default name is Люся:  
+That is, the folder structure should be something like this:  
+![file_structure](/image/file_structure.jpg)
+
+The program is started by the file ``voicehelper_friend.py ``. 
+The program settings are located in the module `voicehelper_friend_config.py `.
+
+In the module `voicehelper_friend_config.py ` specify the language and name of the user who will communicate with the program.
+For example, for the Russian language:  
 ```python
 LANGUAGE = 'ru'
-USER_NAME = 'Люся'
+USER_NAME = 'Lucy'
 ```
-For English in the module `voicehelper_friend_config.py ` specify the language `en" and the name of the user who will communicate with the program. For example, the name Lucy:  
+For example, for English:  
 ```python
 LANGUAGE = 'en'
 USER_NAME = 'Lucy'
-``` 
+```
+
 
 ### Instructions for use
-The program is started by the file ``voicehelper_friend.py ``. 
-The program settings are located in the module `voicehelper_friend_config.py `.  
+In order for the program to execute commands, you need to contact a *"friend"* and say the commands.  
+For example:
+1. Say the word *"friend"* and if the command is short, then the command. For example, to start the player, you need to say *"Friend play"*. The word *"friend"* and the command can be pronounced several times (if you keep within 2 seconds).
+2. If the command is long, then first you need to pronounce the word *"friend"*. (The word *"friend"* can be pronounced several times in a row.) Wait for the program to respond and then say the command. For example *"Go to on track 25"* or *"Forward 70 seconds"*  
 
-Before starting the program in the module ``voicehelper_friend_config.py `` you need to select a language and enter a username. **By default, the language is Russian, and the username is Люся**.
-
-In the first release, the team is able to play media files from a playlist named ``my_playlist.m3u`` and move on to the next or previous track.  
-You can **start a playlist** with one of the words: *play, sing*.  
-**Go to the next track**: *next*.  
-**Go to the previous track**: *previous*
+Since commands are not always recognized correctly, they can be pronounced several times and in different versions. Say the numbers only once, otherwise they add up. For example, you can say this *"Go to on track 5 go to track"*
 
 ### An example of how the program works ###
 
