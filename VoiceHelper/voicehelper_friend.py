@@ -532,6 +532,18 @@ def main():
                 if media_player.get_position() == 0:
                     media_list_player.next()
 
+                # Можно получить текущий воспроизводимый файл
+                # med = media_player.get_media()
+                # med.tracks_get() если None, то значит это не медиа файл.
+                # Можно использовать это условие, чтобы перейти к следующему треку,
+                # но это еще один объект. Пока он не нужен
+                # b1=med.tracks_get()
+                # Смотрела также эти варианты
+                # b3=med.get_mrl() можно получить имя трека
+                # b2=med.get_tracks_info()
+                # b5=med.get_state()
+                # b6=med.get_type()
+
             print('main(): media_list_player.get_state()', media_list_player.get_state())
 
             rec.Reset()
