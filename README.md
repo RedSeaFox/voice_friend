@@ -3,7 +3,7 @@
 <summary>English</summary>
 
 ### About the program
-The program is designed for situations where there is no possibility or desire to control a computer with a mouse or keyboard.
+The program is designed for situations where there is no possibility or desire to control a computer with a mouse or keyboard. The program can work offline, since the Vosk offline library is used for speech recognition.
 
 The main purpose of the program is listening or watching media. 
 
@@ -131,10 +131,36 @@ Since commands are not always recognized correctly, they can be pronounced sever
 ### An example of how the program works ###
 
 There is a playlist file named *my_playlist.m3u* in the program folder.  
+
 Run the program (run the file `voicehelper_friend.py` ). At startup, the program informs you that the program is running.  
-If we want to start playing a playlist, we say: *"friend, play"*.
+
+If we want to **start playing a playlist**, we say: *"friend play"* or  *"friend sing"*.
 If the phrase is fully recognized, the player starts.  
-If only the word *"friend"* is recognized, then the program asks you to tell her a command. We can pronounce one or more words from the list *SET_PLAY = {'play', 'play', 'sing', 'sing'}*. For example, we can say *"play, sing"*. Then the player will start.  
+If only the word *"friend"* is recognized, then the program asks you to tell her a command. We can pronounce one or more words from the list *SET_PLAY = {'play', 'play', 'sing', 'sing'}*. For example, we can say *"play"* or *"play sing"* or *"play play"*. Then the player will start. 
+
+**To move on to the next track**, we say *"Friend next"*.
+If the phrase is fully recognized, the next track will start.  
+If only the word *"friend"* is recognized, then the program asks you to tell her a command. Then we should say the word *"next"*. We can pronounce this word several times so that the program recognizes it for sure. For example*"Next next"*.
+Similarly, to go to the previous track. 
+Similarly, to go to the previous track, we say *"Friend previous"*.   
+
+**To go to track number five**, we say for example *"Friend go to track five"*.
+If the phrase is fully recognized, the fifth track will start.  
+If only the word *"friend"* is recognized, then the program asks you to tell her a command. Then we say either *"Go to track five"* or *"Go to song five"* or *"track number five"* or *"Go to track five"* etc.  
+
+**To move forward through several tracks** (**fast forward**), say, for example *"Friend forward seven tracks"*. For example, track number 2 is currently playing, then after executing this command, track number 9 (2 + 7 = 9) will start playing. If the phrase is fully recognized, track number 9 will start playing.
+If only the word *"friend"* is recognized, then the program asks you to tell her a command. Then we say either *"Forward seven tracks"* or * "Forward seven tracks forward track"*.  
+Similarly, for **moving backwards**, we say for example *"Friend back four tracks"* etc.  
+
+To **switch to the second minute in the current track**, we say *"Friend, go to the second minute"*.
+If the phrase is fully recognized, the track will start playing from the second minute.  
+If only the word *"friend"* is recognized, then the program asks you to tell her a command. Then we say *"Go to the second minute"* etc.  
+
+To **move forward 10 minutes in the current track** (**fast forward**) (for example, playback is currently at 2 minutes, then after executing the command playback will start at the 12th minute), we say *"Friend forward ten minutes"*. 
+If the phrase is fully recognized, the track will start playing from the twelfth minute.  
+If only the word *"friend"* is recognized, then the program asks you to tell her a command. Then we say  *"Forward ten minutes"* .
+Similarly, to move backwards, we say for example *"Friend back for ten seconds"*, etc.
+
 If the program hears the word *"friend"* during playback, the player is paused and the program asks you to say a command.  
 If during playback the program hears *"friend"* and some other command that it knows how to execute, then the program executes this command.
 </details>
@@ -144,7 +170,7 @@ If during playback the program hears *"friend"* and some other command that it k
 <summary>Russian</summary>
 
 ### О программе
-Программа управления голосом для ситуаций, когда нет возможности или желания управлять компьютером при помощи мышки или клавиатуры.
+Программа управления голосом для ситуаций, когда нет возможности или желания управлять компьютером при помощи мышки или клавиатуры. Программа может работать офлайн, так как для распознавания речи используется офлайн библиотека Vosk.
 
 Основное назначение программы - прослушивание или просмотр медиа. 
 
@@ -181,10 +207,9 @@ FRIEND = 'друг'
 Например.  
 Сначала говорим слово *друг*. Программа понимает, что обратились к ней. Потом говорим *"Включи трек пять"* или *"Перейди к песне пять"*
 4. **Переходить внутри трека к указанному времени.**  
-Например, такой фразой: *"Иди к секунде пять"*. Для этого используются множества `SET_GOTO, SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR`  модуля `voicehelper_friend_config.py`. Указывать можно секунды, минуты, часы. Пока распознается только время или в секундах, или в минутах, или в часах. То есть если сказать 2 минуты 6 секунд, то программа распознает это время как 8 секунд. В таких случаях можно переводить время в секунды или минуты. Например, вместо 2 минуты 6 секунд  сказать 126 секунд.  
-TODO: надо просклонять числа. Тогда будет возможен переход фразами такого типа: *"Перейди к пятой секунде", "Включи пятую секунду"*
+Например, такой фразой: *"Иди к пятой секунде"* или *"Перейди к пятой секунде" или "Включи пятую секунду"*. Для этого используются множества `SET_GOTO, SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR`  модуля `voicehelper_friend_config.py`. Указывать можно секунды, минуты, часы. Пока распознается только время или в секундах, или в минутах, или в часах. То есть если сказать 2 минуты 6 секунд, то программа распознает это время как 8 секунд. В таких случаях можно переводить время в секунды или минуты. Например, вместо 2 минуты 6 секунд  сказать 126 секунд.  
 5. **Быстрая перемотка назад/вперед через треки или секунды/минуты/часы**.  
-Например могут быть такие команды *"Вперед на 3 трека", "Назад на 2 минуты"*. Для этого используются множества `SET_FORWARD, SET_BACK, SET_MEASURE_TRACK, SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR`  модуля `voicehelper_friend_config.py`. 
+Например могут быть такие команды *"Вперед на три трека", "Назад на две минуты"*. Для этого используются множества `SET_FORWARD, SET_BACK, SET_MEASURE_TRACK, SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR`  модуля `voicehelper_friend_config.py`. 
 Возможен прыжок через несколько треков (например два трека) или через несколько секунд/минут/часов (например 20 секунд). Пока распознается только время или в секундах, или в минутах, или в часах. То есть время 2 минуты 6 секунд будет распознано как 8 секунд 
 По умолчанию, в множество `SET_FORWARD` входит слово: *'вперёд'*. Во множество `SET_BACK` входит слово *'назад'*. Множества `SET_MEASURE_SECOND, SET_MEASURE_MINUTE, SET_MEASURE_HOUR` содержат слова *'секунда', 'минута', 'час'*. Во множество `SET_MEASURE_TRACK` входят слова: *'трек', 'песня'*.
 
@@ -209,7 +234,7 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 ```
 
 На данном этапе программа работает под Windows. Тестировалась на Windows 10. 
-В коде программы вставлены выводы (print) для отладки и для того чтобы понимать как распознона ваша речь. Часть print-ов закомментирована, но при желании, их можно раскомментировать.
+В коде программы вставлены выводы (print) для отладки и для того чтобы понимать как распознана  ваша речь. Часть print-ов закомментирована, но при желании, их можно раскомментировать.
 
 ### Стек технологий
 Программа разработана на Python 3.11  
@@ -217,7 +242,7 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 Перечень всех модулей и пакетов, необходимых для корректной работы программы содержаться в файле `requirements.txt`.
 
 
-Для распознавания речи используется оффлайн-библиотека [vosk](https://alphacephei.com/vosk/) и ее малые (Lightweight) [модели](https://alphacephei.com/vosk/models ): *vosk-model-small-en-us-0.15* и *vosk-model-small-ru-0.22*.  
+Для распознавания речи используется офлайн библиотека [Vosk](https://alphacephei.com/vosk/) и ее малые (Lightweight) [модели](https://alphacephei.com/vosk/models ): *vosk-model-small-en-us-0.15* и *vosk-model-small-ru-0.22*.  
 В первом релизе программа работает с русским и английским языком. Вы можете добавить свой язык.
 Для этого надо:
 1. скачать малую языковую модель (Lightweight)  [отсюда](https://alphacephei.com/vosk/models) и распаковать ее в папку с программой
@@ -225,7 +250,7 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 
 
 ### Инструкция по установке
-Должен быть установлен Python 3.11. Возможно прграмма будет работать и на других версиях Python 3. 
+Должен быть установлен Python 3.11. Возможно программа будет работать и на других версиях Python 3. 
 
 Скачать с репозитория из папки [VoiceHelper](https://github.com/RedSeaFox/voice_friend/tree/master/VoiceHelper) и поместить в отдельную папку файлы `voicehelper_friend.py` и `voicehelper_friend_config.py`. 
 
@@ -237,7 +262,7 @@ SET_PLAY = {'играй', 'играть', 'пой', 'петь'}
 В плейлисте должен быть прописан полный путь к медиафайлам, с указанием диска и папок.  
 Пример: `file:///F:/MyMusic/Romeo_and_Juliet.mp3`. 
 
-То есть структара папки должна быть примерно такая:  
+То есть структура папки должна быть примерно такая:  
 ![file_structure](/image/file_structure.jpg)
 
 Программа запускается файлом ```voicehelper_friend.py```. 
@@ -261,17 +286,43 @@ USER_NAME = 'Lucy'
 1. произнести слово *"друг"* и если команда короткая, то команду. Например, чтобы запустить плеер, надо произнести *"Друг играй"*. Слово *"друг"* и команду можно произносить несколько раз (если уложитесь в 2 секунды).
 2. Если команда длинная, то сначала надо произнести слово *"друг"*. (Слово *"друг"* можно произносить несколько раз подряд.) Дождаться отклика программы и потом произнести команду. Например *"Включи трек 25"* или *"Вперед на 70 секунд"*  
 
-Так как команды распознаются не всегда корректно, то их можно произносить по несколько раз и в разных вариантах. Числа произносить только один раз, иначе они суммируются. Например можно сказать так *"Включи трек 5 перейди к треку"*
+Так как команды распознаются не всегда корректно, то их можно произносить по несколько раз и в разных вариантах. Числа произносить только один раз, иначе они суммируются. Например можно сказать так *"Включи трек пять перейди к треку"*
 
 
 ### Пример работы программы ###
 
 В папке с программой есть файл плейлиста с именем `my_playlist.m3u`.  
+
 Запускаем программу (запускаем файл`voicehelper_friend.py`). При запуске программа сообщает, что программа запущена.  
-Если хотим запустить воспроизведение плейлиста, то говорим: *"друг играй"*.
+
+Если хотим **запустить воспроизведение плейлиста**, то говорим: *"друг играй"* или *"друг пой"*.
 Если фраза распознана полностью, то запускается плеер.  
 Если распознано только слово *"друг"*, то программа просит сказать ей команду. Можем произнести одно или несколько слов из списка  *SET_PLAY = {'играй', 'играть', 'пой', 'петь'}*. Например, можем сказать *"пой, играй, пой"*. Тогда запуститься плеер.  
-Если во время воспроизведения программа услышит слово *"друг"*, то плеер ставится на паузу и программа просит произнести команду.  
-Если во время воспроизведения программа услышит *"друг"* и еще какую-то команду, которую она умеет выполнять, то программы выполнит эту команду.
+
+Чтобы **перейти к следующему треку**, говорим *"Друг следующий"*.
+Если фраза распознана полностью, то запустится следующий трек.  
+Если распознано только слово *"друг"*, то программа просит сказать ей команду. Тогда говорим слово *"следующий"*. Можем произнести это слово несколько раз, чтобы программа распознала его наверняка. Например*"Следующий следующий"*.  
+Аналогично для перехода к предыдущему треку говорим *"Друг предыдущий"*.  
+
+Чтобы **перейти к треку номер пять**, то говорим например *"Друг включи трек пять"*.
+Если фраза распознана полностью, то запустится пятый трек.  
+Если распознано только слово *"друг"*, то программа просит сказать ей команду. Тогда говорим или *"Включи трек пять"* или *"Перейди к песне пять"* или *"Включи пятый трек"* или *"Перейди к пятому треку"* и т.д.  
+
+Чтобы **перейти через несколько треков вперед** (**быстрая перемотка вперед**), говорим, например *"Друг вперед на семь треков"*. Например, сейчас воспроизводится трек номер 2 , то после выполнения этой команды начнет воспроизводиться трек номер 9 (2 + 7 = 9). Если фраза распознана полностью, то начнет воспроизводиться трек номер 9.  
+Если распознано только слово *"друг"*, то программа просит сказать ей команду. Тогда говорим или *"Вперед на семь треков"* или *"Вперед на семь треков вперед трек"*.  
+Аналогично для **передвижения назад**, говорим например *"Друг назад на четыре трека"* и т.д.
+
+Чтобы **в текущем треке перейти ко второй минуте**, говорим *"Друг включи вторую минуту"*.
+Если фраза распознана полностью, то трек начнет воспроизводиться со второй минуты.  
+Если распознано только слово *"друг"*, то программа просит сказать ей команду. Тогда говорим или *"Включи вторую минуту"* или *"Перейди ко второй минуте"* и т.д.  
+
+Чтобы **в текущем треке передвинуться на 10 минут вперед** (**быстрая перемотка вперед**) (например, сейчас воспроизведение на отметке 2 минуты, то после выполнения команды воспроизведение начнется с 12-ой минуты), говорим *"Друг вперед на десять минут"*. 
+Если фраза распознана полностью, то трек начнет воспроизводиться с двенадцатой минуты.  
+Если распознано только слово *"друг"*, то программа просит сказать ей команду. Тогда говорим или *"Вперед на десять минут"* или *"Вперед на десять минут вперед"*.
+Аналогично для передвижения назад, говорим например *"Друг назад на десять секунд"* и т.д.  
+
+Если во время воспроизведения программа услышит слово *"друг"*, то **плеер ставится на паузу** и программа просит произнести команду.  
+Если во время воспроизведения программа услышит *"друг"* и еще какую-то команду, которую она умеет выполнять, то программы выполнит эту команду.  
+
 
 </details>
