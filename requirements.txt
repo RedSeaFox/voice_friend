@@ -27,6 +27,6 @@ srt==3.5.3
 tinytag==1.10.1
 tqdm==4.66.2
 typing_extensions==4.11.0
-urllib3==2.2.1
+urllib3==2.6.3
 vosk==0.3.45
 websockets==12.0
